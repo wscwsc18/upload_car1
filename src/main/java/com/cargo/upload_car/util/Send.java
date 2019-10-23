@@ -129,8 +129,6 @@ public class Send {
 
 
 
-
-
             while ((line = in.readLine()) != null) {
                 result += line;
             }
