@@ -125,9 +125,6 @@ public class Send {
             // 读取返回的内容
 
 
-
-
-
             while ((line = in.readLine()) != null) {
                 result += line;
             }
