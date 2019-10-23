@@ -124,8 +124,6 @@ public class Send {
             String line;
 
             // 读取返回的内容
-            // 读取返回的内容
-//fddffdfff
 
 
 
