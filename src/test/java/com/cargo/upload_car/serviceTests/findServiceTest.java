@@ -15,19 +15,17 @@ public class findServiceTest {
     public IfiandID ifiandID;
 
     @Test
-    public void findTop20001(){
-        Integer index =0;
-        while (index == 0){
+    public void findTop20001() {
+        Integer index = 0;
+        while (index == 0) {
             try {
                 ifiandID.sendCars(ifiandID.setConfig());
                 Thread.sleep(49000);
-
-//的范德萨发顺丰
-
-            }catch(Exception e) {
-                index =1;
+            } catch (Exception e) {
+                index = 1;
                 e.printStackTrace();
-                break;            }
+                break;
+            }
         }
 
     }
