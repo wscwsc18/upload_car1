@@ -21,6 +21,9 @@ public class findServiceTest {
             try {
                 ifiandID.sendCars(ifiandID.setConfig());
                 Thread.sleep(49000);
+
+//的范德萨发顺丰
+
             }catch(Exception e) {
                 index =1;
                 e.printStackTrace();
