@@ -28,7 +28,7 @@ public class FindIDImpl implements IfiandID {
             car = new Car();
             CarConfig carConfig = it.next();
             car.setStart_address(carConfig.getSetOutCity());
-            car.setEnd_address(carConfig.getDestinationCity());
+        car.setEnd_address(carConfig.getDestinationCity());
             //car.setRemark(carConfig.getInfo());
             car.setRemark("很好的物流u1");
             car.setStart_id("371311");
@@ -36,9 +36,12 @@ public class FindIDImpl implements IfiandID {
             car.setStart_lng("116.141");
             car.setStart_lat("39.961");
             car.setEnd_lng("115.214");
-            car.setEnd_lat("40.821");
+            car.setEnd_lat("40.822");
 
             car.setIs_use_enum("0");
+            car.setVip_phone ( carConfig.getPhoneNumber() );
+            car.setVip_username(carConfig.getUsername());
+
             car.setCar_model(carConfig.getTType());//车场长
             car.setCar_length(carConfig.getTLength());
             car.setCar_type("1");

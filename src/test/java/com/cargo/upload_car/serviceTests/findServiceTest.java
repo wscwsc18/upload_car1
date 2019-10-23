@@ -16,6 +16,18 @@ public class findServiceTest {
 
     @Test
     public void findTop20001(){
-        ifiandID.sendCars(ifiandID.setConfig());
+        Integer index =0;
+        while (index == 0){
+            try {
+                ifiandID.sendCars(ifiandID.setConfig());
+                Thread.sleep(49000);
+            }catch(Exception e) {
+                index =1;
+
+                e.printStackTrace();
+                break;            }
+
+        }
+
     }
 }

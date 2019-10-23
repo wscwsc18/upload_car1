@@ -18,6 +18,10 @@ public class SendCarPost {
 
         timestamp = System.currentTimeMillis();
         System.err.println(timestamp);
+
+
+
+
         try {
             sign = appid + "&" + request_id + "&" + timestamp;
             System.err.println(sign);
@@ -26,6 +30,9 @@ public class SendCarPost {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+
+
         Map<String, String> map = new LinkedHashMap<String, String>();
         map.put("request_id", Integer.toString(request_id));
         map.put("timestamp", Long.toString(timestamp));

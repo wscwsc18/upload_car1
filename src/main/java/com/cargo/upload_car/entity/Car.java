@@ -26,13 +26,30 @@ public class Car extends BaseEntity {
     private String load_of;    //	装货方式
     private String task_price;    //	货物运费：数值
     private String is_visible;    //	同城货主可不可见：0可见1不可见
+    private String vip_phone  ;       //是 货主手机号
+    private String vip_username  ;   //是 货主昵称     睿姐，这是新加的两个参数
 
     public String getStart_address() {
         return start_address;
     }
-
     public void setStart_address(String start_address) {
         this.start_address = start_address;
+    }
+
+    public String getVip_phone() {
+        return vip_phone;
+    }
+
+    public void setVip_phone(String vip_phone) {
+        this.vip_phone = vip_phone;
+    }
+
+    public String getVip_username() {
+        return vip_username;
+    }
+
+    public void setVip_username(String vip_username) {
+        this.vip_username = vip_username;
     }
 
     public String getEnd_address() {
@@ -203,12 +220,11 @@ public class Car extends BaseEntity {
         this.is_visible = is_visible;
     }
 
-
     @Override
     public String toString() {
         return "Car{" +
                 "start_address='" + start_address + '\'' +
-                ", end_address=" + end_address +
+                ", end_address='" + end_address + '\'' +
                 ", remark='" + remark + '\'' +
                 ", start_id='" + start_id + '\'' +
                 ", end_id='" + end_id + '\'' +
@@ -216,7 +232,7 @@ public class Car extends BaseEntity {
                 ", start_lat='" + start_lat + '\'' +
                 ", end_lng='" + end_lng + '\'' +
                 ", end_lat='" + end_lat + '\'' +
-                ", is_use_enum=" + is_use_enum +
+                ", is_use_enum='" + is_use_enum + '\'' +
                 ", car_model='" + car_model + '\'' +
                 ", car_length='" + car_length + '\'' +
                 ", car_type='" + car_type + '\'' +
@@ -229,6 +245,26 @@ public class Car extends BaseEntity {
                 ", load_of='" + load_of + '\'' +
                 ", task_price='" + task_price + '\'' +
                 ", is_visible='" + is_visible + '\'' +
+                ", vip_phone='" + vip_phone + '\'' +
+                ", vip_username='" + vip_username + '\'' +
                 '}';
     }
+
+
+   /*
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Car  car1 = (Car) o;
+        return Objects.equals(Id, car1.Id);
+    }
+    @Override
+    public int hashCode() {        return Objects.hash(Id);    }
+*/
+
 }
+
+
+
+

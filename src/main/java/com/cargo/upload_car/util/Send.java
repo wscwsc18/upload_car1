@@ -17,6 +17,10 @@ public class Send {
         String params = "";// 编码之后的参数
         try {
             // 编码请求参数
+
+            //region Description
+
+            //<editor-fold desc="Description">
             if (parameters.size() == 1) {
                 for (String name : parameters.keySet()) {
                     sb.append(name).append("=").append(java.net.URLEncoder.encode(parameters.get(name), "UTF-8"));
@@ -29,6 +33,9 @@ public class Send {
                 String temp_params = sb.toString();
                 params = temp_params.substring(0, temp_params.length() - 1);
             }
+            //</editor-fold>
+            //endregionhttps://mp.weixin.qq.com/s?__biz=MzI3NjU2ODA5Mg==&mid=2247484646&idx=2&sn=5aa8de552dc9dd7292db2f0123f3b2f1&chksm=eb72c595dc054c8357fcf21e56ff868e5346beb37b5a815fc072b9a58cccbeaebb9c85b24c31&scene=0&xtrack=1&key=c21e0544274722aa9c3a672b5fdb0e72e8ef656a4b4947bcca1b233ec7a51a9b6692b2178a75433f200df74be7e89b632a9b7b8bcb961be6dc2ab538a1ab6c7f123eca10b46a9a2eb106deb8491303b1&ascene=1&uin=MTkxODMwMjE2MA%3D%3D&devicetype=Windows+10&version=62060739&lang=zh_CN&pass_ticket=3QseBuaRNb49%2FDTtysdopRTAMUEn1UU1bBejUv5o56KyuBWckAFcCntCWrKM3eXe
+
             String full_url = url + "?" + params;
             System.out.println(full_url);
             // 创建URL对象
@@ -75,6 +82,8 @@ public class Send {
         PrintWriter out = null;
         StringBuffer sb = new StringBuffer();// 处理请求参数
         String params = "";// 编码之后的参数
+
+
         try {
             // 编码请求参数
             if (parameters.size() == 1) {
