@@ -4,6 +4,7 @@ public class Car extends BaseEntity {
 
     private static final long serialVersionUID = 5570055010759909910L;
 
+
     private String start_address;    //	起始地详情
     private String end_address;    //	目的地详情
     private String remark;    //	任务备注
