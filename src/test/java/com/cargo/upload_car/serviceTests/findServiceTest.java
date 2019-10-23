@@ -23,10 +23,8 @@ public class findServiceTest {
                 Thread.sleep(49000);
             }catch(Exception e) {
                 index =1;
-
                 e.printStackTrace();
                 break;            }
-
         }
 
     }
