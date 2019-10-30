@@ -45,7 +45,7 @@
                 <th>{{item.cid}}</th>
                 <th>{{item.start_address}}</th>
                 <th>{{item.end_address}}</th>
-                <th>{{item.is_use_enum}}</th>
+                <th>{{item.is_use_enum | renwuFilter}}</th>
                 <th>{{item.car_model}}</th>
                 <th>{{item.car_length}}</th>
                 <th>{{item.car_type}}</th>
@@ -65,6 +65,13 @@
 <script src="./node_modules/axios/dist/axios.js"></script>
 <script>
     Vue.prototype.$ajax = axios;
+    Vue.filter("renwuFilter",(input)=>{
+        if(input === 1){
+            return "任务中"
+        }else if(input === "0"){
+            return "待接任务"
+        }
+    })
     Vue.filter("dateFilter", (input, format = "YYY-MM-DD HH:mm:ss") => {
             return moment(input).format(format)
         }
