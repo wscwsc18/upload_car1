@@ -1,9 +1,12 @@
 package com.cargo.upload_car.entity;
 
+import java.util.Objects;
+
 public class Car extends BaseEntity {
 
     private static final long serialVersionUID = 5570055010759909910L;
 
+    private Integer cid;//对应数据库id
 
     private String start_address;    //	起始地详情
     private String end_address;    //	目的地详情
@@ -27,12 +30,21 @@ public class Car extends BaseEntity {
     private String load_of;    //	装货方式
     private String task_price;    //	货物运费：数值
     private String is_visible;    //	同城货主可不可见：0可见1不可见
-    private String vip_phone  ;       //是 货主手机号
-    private String vip_username  ;   //是 货主昵称     睿姐，这是新加的两个参数
+    private String vip_phone;       //是 货主手机号
+    private String vip_username;   //是 货主昵称     睿姐，这是新加的两个参数
+
+    public Integer getCid() {
+        return cid;
+    }
+
+    public void setCid(Integer cid) {
+        this.cid = cid;
+    }
 
     public String getStart_address() {
         return start_address;
     }
+
     public void setStart_address(String start_address) {
         this.start_address = start_address;
     }
@@ -224,7 +236,8 @@ public class Car extends BaseEntity {
     @Override
     public String toString() {
         return "Car{" +
-                "start_address='" + start_address + '\'' +
+                "cid=" + cid +
+                ", start_address='" + start_address + '\'' +
                 ", end_address='" + end_address + '\'' +
                 ", remark='" + remark + '\'' +
                 ", start_id='" + start_id + '\'' +
@@ -251,19 +264,18 @@ public class Car extends BaseEntity {
                 '}';
     }
 
-
-   /*
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Car  car1 = (Car) o;
-        return Objects.equals(Id, car1.Id);
+        Car car = (Car) o;
+        return Objects.equals(cid, car.cid);
     }
-    @Override
-    public int hashCode() {        return Objects.hash(Id);    }
-*/
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(cid);
+    }
 }
 
 

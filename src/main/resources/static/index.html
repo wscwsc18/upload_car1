@@ -1,14 +1,108 @@
 <!DOCTYPE html>
-<html lang="ZG_CH">
+<html lang="ZH_ch">
+
 <head>
     <meta charset="UTF-8">
-    <title>upload</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="./node_modules/bootstrap/dist/css/bootstrap.css">
+    <title>数据</title>
 </head>
+
 <body>
 <div id="app">
-    <input type="text" name="topNum">
-    <h1>sdfsafsfsdfsafsdfsfsffsdf</h1>
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h3 class="panel-title">车辆数据管理</h3>
+        </div>
+    </div>
+<!--    <div class="panel-body form-inline">-->
+<!--        <label>-->
+<!--            <input type="button" value="查看所有" class="btn btn-primary" @click="findTopAll">-->
+<!--        </label>-->
+<!--    </div>-->
+    <div class="panel panel-primary">
+        <table class="table table-bordered table-nover table-striped">
+            <tr>
+                <th>Id</th>
+                <th>car_id</th>
+                <th>出发地</th>
+                <th>目的地</th>
+                <th>出任务</th>
+                <th>车型</th>
+                <th>车长</th>
+                <th>用车类型</th>
+                <th>货物名称</th>
+                <th>装车时间</th>
+                <th>装货方式</th>
+                <th>货物运费</th>
+                <th>同城可见</th>
+                <th>货主手机号</th>
+                <th>编辑</th>
+            </tr>
+            <tr v-for="(item,index) in list" :key="item.Id">
+                <th>{{index+1}}</th>
+                <th>{{item.cid}}</th>
+                <th>{{item.start_address}}</th>
+                <th>{{item.end_address}}</th>
+                <th>{{item.is_use_enum}}</th>
+                <th>{{item.car_model}}</th>
+                <th>{{item.car_length}}</th>
+                <th>{{item.car_type}}</th>
+                <th>{{item.goods_name}}</th>
+                <th>{{item.starttime}}</th>
+                <th>{{item.load_of}}</th>
+                <th>{{item.task_price}}</th>
+                <th>{{item.is_visible}}</th>
+                <th>{{item.vip_phone}}</th>
+                <td><a @click.prevent="delet(index,item.cid)" href="">删除</a></td>
+            </tr>
+        </table>
+    </div>
 </div>
+<script src="./node_modules/vue/dist/vue.js"></script>
+<script src="./node_modules/moment/src/moment.js"></script>
+<script src="./node_modules/axios/dist/axios.js"></script>
+<script>
+    Vue.prototype.$ajax = axios;
+    Vue.filter("dateFilter", (input, format = "YYY-MM-DD HH:mm:ss") => {
+            return moment(input).format(format)
+        }
+    )
+    let vm = new Vue({
+        el: "#app",
+        data: {
+            list: "",
+            testUrl: "http://localhost:8098/"
+        },
+        mounted: function () {
+            var that = this
+            this.$ajax.get(that.testUrl + "car/upload")
+                .then(function (res) {
+                    that.list = res.data
+                    console.log(res.data)
+                })
 
+        },
+        methods: {
+            findTopAll: function () {
+                var that = this
+                this.$ajax.get(that.testUrl + "car/upload")
+                    .then(function (res) {
+                        that.list = res.data
+                        console.log(res.data)
+                    })
+            },
+            delet: function (id, num) {
+                var that = this
+                that.list.splice(id, 1)
+                this.$ajax.get(that.testUrl + "car/delete?cid=" + num)
+                    .then(function (res) {
+                    })
+            }
+        }
+    })
+</script>
 </body>
+
 </html>

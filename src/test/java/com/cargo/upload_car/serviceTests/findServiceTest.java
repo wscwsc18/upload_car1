@@ -25,7 +25,7 @@ public class findServiceTest {
                 index = 1;
                 e.printStackTrace();
                 break;
-            }
+        }
         }
 
     }

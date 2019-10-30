@@ -20,15 +20,16 @@ public class FindIDImpl implements IfiandID {
 
     @Override
     public List<Car> setConfig() {
-        List<CarConfig> carConfigs = findCar.findTop200();
+        List<CarConfig> carConfigs = findCar.findAll();
         List<Car> list = new ArrayList<>();
         Iterator<CarConfig> it = carConfigs.iterator();
         Car car;
         while (it.hasNext()) {
             car = new Car();
             CarConfig carConfig = it.next();
+            car.setCid(carConfig.getId());
             car.setStart_address(carConfig.getSetOutCity());
-        car.setEnd_address(carConfig.getDestinationCity());
+            car.setEnd_address(carConfig.getDestinationCity());
             //car.setRemark(carConfig.getInfo());
             car.setRemark("很好的物流u1");
             car.setStart_id("371311");
@@ -83,7 +84,14 @@ public class FindIDImpl implements IfiandID {
         System.err.println(result);
     }
 
-    /**
-     * [{"car_length":"0","car_model":"","car_type":"1","end_address":"呼伦贝尔满洲里","end_id":"","end_lng":"","goods_name":"货物名称","is_use_enum":"0","is_visible":"1","load_of":"装货方式","remark":" 9 林东到呼伦贝尔【满洲里】去大吨位重货求13米车多台天天装 ；通辽；扎旗；赤峰；辽宁1","start_address":"林东","start_id":"","start_lng":"","starttime":"1571645866481","task_price":"运费","volume_max":"100","volume_min":"0","weight_max":"100","weight_min":"0"},{"car_length":"0","car_model":"","car_type":"1","end_address":"呼伦贝尔满洲里","end_id":"","end_lng":"","goods_name":"货物名称","is_use_enum":"0","is_visible":"1","load_of":"装货方式","remark":" 9 林东到呼伦贝尔【满洲里】去大吨位重货求13米车多台天天装 ；通辽；扎旗；赤峰；辽宁1","start_address":"林东","start_id":"","start_lng":"","starttime":"1571645866481","task_price":"运费","volume_max":"100","volume_min":"0","weight_max":"100","weight_min":"0"}]
-     */
+    @Override
+    public List<CarConfig> findTop200() {
+        return  findCar.findTop200();
+    }
+
+    @Override
+    public void deleteCarByCid(Integer id) {
+        Integer rows = findCar.deletById(id);
+    }
+
 }

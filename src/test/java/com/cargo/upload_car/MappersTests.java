@@ -20,6 +20,32 @@ public class MappersTests {
     @Test
     public void find() {
         List<CarConfig> carConfigList = findCar.findTop200();
+        System.err.println(carConfigList.size());
+        for (CarConfig carConfig : carConfigList
+        ) {
+            System.err.println(carConfig);
+        }
+    }
+
+
+    @Test
+    public void findTopByNum(){
+        Integer num = 3;
+        List<CarConfig> carConfigList = findCar.findTopByNum(num);
+        for (CarConfig carConfig : carConfigList
+        ) {
+            System.err.println(carConfig);
+        }
+    }
+
+    @Test
+    public void deleteByID(){
+        Integer rows = findCar.deletById(25462010);
+        System.err.println(rows);
+    }
+    @Test
+    public void findAll(){
+        List<CarConfig> carConfigList = findCar.findAll();
         for (CarConfig carConfig : carConfigList
         ) {
             System.err.println(carConfig);
