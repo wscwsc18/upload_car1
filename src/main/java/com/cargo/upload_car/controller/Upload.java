@@ -19,7 +19,6 @@ public class Upload {
     public List<Car> upload() {
         List<Car> cars = ifiandID.setConfig();
         return cars;
-
     }
 
     @RequestMapping("delete")

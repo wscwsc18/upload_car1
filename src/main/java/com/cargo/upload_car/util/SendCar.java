@@ -9,7 +9,6 @@ import com.cargo.upload_car.service.ex.NoRequest_idORTimestamp;
  */
 public class SendCar {
     private String appid = "th20190001a";//	应用唯一标识
-
     private String request_id = null;//	必须参数
     private String JSONString = "";
     private String timestamp = null;//timestamp	当前时间戳
