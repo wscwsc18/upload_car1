@@ -15,3 +15,44 @@
 */
             car.setCar_model("19");//车长
             car.setCar_length("49");
+            
+            GIt的使用说明
+https://github.com/wscwsc18/upload_car1.git            
+            
+…or create a new repository on the command line
+echo "# upload_car1" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git remote add origin https://github.com/wscwsc18/upload_car1.git
+git push -u origin master            
+
+
+
+…or push an existing repository from the command line
+git remote add origin https://github.com/wscwsc18/upload_car1.git
+git push -u origin master
+
+
+post-step步骤
+
+
+
+
+
+@echo off
+c:
+cd C:\tools\apache-tomcat-6.0.48\webapps
+if exist "C:\tools\apache-tomcat-6.0.48\webapps\simple-service-webapp.war" del "C:\tools\apache-tomcat-6.0.48\webapps\simple-service-webapp.war"
+copy "C:\Users\it\.jenkins\workspace\simple-service-webapp\target\simple-service-webapp.war" "C:\tools\apache-tomcat-6.0.48\webapps\simple-service-webapp.war"
+if exist "C:\Users\it\.jenkins\workspace\simple-service-webapp\target\simple-service-webapp\"  rd /s /q "C:\Users\it\.jenkins\workspace\simple-service-webapp\target\simple-service-webapp\"
+cd "C:\tools\apache-tomcat-6.0.48\bin\"
+start cmd.exe /c startup.bat
+1
+————————————————
+版权声明：本文为CSDN博主「dengjili」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
+原文链接：https://blog.csdn.net/dengjili/article/details/90540605
+
+
+
+

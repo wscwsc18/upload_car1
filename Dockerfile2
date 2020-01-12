@@ -47,3 +47,4 @@ COPY --from=builder /go/src/github.com/EwanValentine/shippy/consignment-service/
 # run time libraries.
 CMD ["./consignment-service"]
 
+
