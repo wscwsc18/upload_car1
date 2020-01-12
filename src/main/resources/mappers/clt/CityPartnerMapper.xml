@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.CityPartnerMapper">
+    
+    <select id="queryCityPartnerList" resultType="com.fssoft.freight.api.result.modules.cityPartnerResult.CityPartnerResult">
+        SELECT
+        	cp1.`id` as id ,cp1.`partner_Code` as partnerCode,cp1.`partner_Name` as partnerName,
+        	cp1.`invite_Code` as inviteCode,cp1.`province` as province,cp1.`city` as city,
+        	cp1.`partner_Level` as partnerLevel,ac1.`phone` as mobile,cp1.`email` as email,cp1.id_card as idCard
+        FROM `dz_citypartner` as cp1 , `dz_user` as ac1
+        where 
+        ac1.is_delete=0  AND ac1.is_publish=1 and ac1.status=1 and (cp1.data_sources_key is null or cp1.data_sources_key=ac1.id)
+        <if test="partnerLevel != null and partnerLevel != ''">
+          AND cp1.partner_Level=#{partnerLevel}
+        </if>
+        <if test="partnerName != null and partnerName != ''">
+          AND cp1.partner_Name=#{partnerName}
+        </if>
+         <if test="mobile != null and mobile != ''"> 
+          AND ac1.phone=#{mobile}
+        </if>
+        group by cp1.partner_code
+         <if test="orderSql != null and orderSql != ''">
+           ORDER BY cp1.${orderSql}
+        </if>
+    </select>
+    <select id="getCityPartnerResultById" resultType="com.fssoft.freight.api.result.modules.cityPartnerResult.CityPartnerResult">
+   		 SELECT
+        	cp1.`id` as id ,cp1.`partner_Code` as partnerCode,cp1.`partner_Name` as partnerName,
+        	cp1.`full_name` as fullName ,cp1.`email` as email,cp1.`remarks` as remarks,
+        	cp1.`invite_Code` as inviteCode,cp1.`province` as province,cp1.`city` as city,
+        	cp1.`partner_Level` as partnerLevel,ac1.`phone` as mobile
+        FROM `dz_citypartner` as cp1 , `dz_user` as ac1
+        where 
+          ac1.is_delete=0  AND ac1.is_publish=1 and ac1.status=1 and ac1.id = cp1.data_sources_key
+        AND cp1.`id`=#{id}
+    </select>
+    <select id="findCityPartnerByCode" resultType="com.fssoft.freight.api.result.modules.cityPartnerResult.CityPartnerResult">
+   		 SELECT
+        	cp1.`id` as id ,cp1.`partner_Code` as partnerCode,cp1.`partner_Name` as partnerName,
+        	cp1.`full_name` as fullName ,cp1.email as email,cp1.`remarks` as remarks,
+        	cp1.`invite_Code` as inviteCode,cp1.`province` as province,cp1.`city` as city,
+        	cp1.`partner_Level` as partnerLevel,ac1.`phone` as mobile
+        FROM `dz_citypartner` as cp1 , `dz_user` as ac1
+        where cp1.data_sources_key = ac1.id
+        AND cp1.`invite_code`=#{code}
+    </select>
+    
+    <select id="shipperCount" resultType="int">
+    SELECT count(du.id) FROM
+	dz_user du
+	WHERE
+	   du.is_delete=0  AND du.is_publish=1 and du.status=1 and du.invite_code=#{inviteCode} and du.type=0
+    </select>
+    
+    <select id="driverCount" resultType="int">
+    SELECT count(du.id) FROM
+	dz_user du
+	WHERE
+	   du.is_delete=0  AND du.is_publish=1 and du.status=1 and du.invite_code=#{inviteCode} and du.type=1
+    </select>
+    <select id="selectCountByUserId" resultType="int">
+    SELECT count(dc.id) FROM
+	dz_citypartner dc
+	WHERE
+	   dc.data_sources_key=#{userId}
+    </select>
+    
+    <select id="driverMoneyCount" resultType="java.lang.Double">
+    SELECT count(dzo.real_money)
+	FROM
+	dz_order dzo
+	WHERE
+	dzo.user_id IN (
+		SELECT du.id FROM
+	dz_user du
+	WHERE
+	   du.is_delete=0  AND du.is_publish=1 and du.status=1 and du.invite_code=#{inviteCode} and du.type=1
+	)
+	AND dzo. STATUS IN (1, 2, 3, 4, 5)
+    </select>
+    
+    <select id="shipperMoneyCount" resultType="java.lang.Double">
+    SELECT
+	count(dzo.real_money)
+FROM
+	dz_order dzo
+WHERE
+	dzo.goods_user_id IN (
+		  SELECT du.id FROM
+	dz_user du
+	WHERE
+	   du.is_delete=0  AND du.is_publish=1 and du.status=1 and du.invite_code=#{inviteCode} and du.type=0
+	)
+AND dzo. STATUS IN (1, 2, 3, 4, 5)
+    </select>
+
+    <select id="queryLevel3ByUserId" resultType="com.fssoft.freight.api.result.modules.cityPartnerResult.Level3PartnerResult">
+        SELECT
+            dc1.id as partnerId1, dc1.data_sources_key as userId1 ,
+            dc2.id as partnerId2, dc2.data_sources_key as userId2 ,
+            dc3.id as partnerId3, dc3.data_sources_key as userId3
+        FROM dz_user AS du1
+                 LEFT JOIN dz_citypartner as dc1 ON du1.invite_code  = dc1.invite_code
+                 LEFT JOIN dz_user AS du2 ON du2.id = dc1.data_sources_key
+                 LEFT JOIN dz_citypartner as dc2 ON du2.invite_code  = dc2.invite_code
+                 LEFT JOIN dz_user AS du3 ON du3.id = dc2.data_sources_key
+                 LEFT JOIN dz_citypartner as dc3 ON du3.invite_code  = dc3.invite_code
+        WHERE du1.`status` = 1 AND du1.is_delete = 0  AND du1.id = #{userId}
+    </select>
+    
+</mapper>

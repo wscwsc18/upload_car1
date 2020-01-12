@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.interface_zyw.dao.mapper.PetroUserMapper">
+  <resultMap id="BaseResultMap" type="com.fssoft.freight.interface_zyw.module.entity.UserEntity">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="trucker_id" jdbcType="INTEGER" property="truckerId" />
+    <result column="card_no" jdbcType="VARCHAR" property="cardNo" />
+    <result column="mobile" jdbcType="VARCHAR" property="treePath" />
+    <result column="balance" jdbcType="BIGINT" property="parentId" />
+  </resultMap>
+
+
+<!--    Integer addUser(UserEntity user);       resultType="java.lang.Integer"-->
+    <insert id="addUser" >
+            INSERT INTO
+                oil_card
+            values
+                (
+                #{id},#{userId},
+                #{truckerId},#{mobile},
+                #{cardNo},#{balance}
+                )
+    </insert>
+
+<!--    UserEntity findByMobile(String mobile);-->
+    <select id="findByMobile" resultType="com.fssoft.freight.interface_zyw.module.entity.UserEntity">
+        SELECT
+            *
+        FROM
+        oil_card
+            WHERE
+        mobile=#{mobile}
+    </select>
+
+<!--    List<UserEntity> findList(@Param("page1")Integer page, @Param("row") Integer row); -->
+    <select id="findList" resultType="com.fssoft.freight.interface_zyw.module.entity.UserEntity">
+        SELECT
+            *
+        FROM
+            oil_card
+        ORDER BY
+            user_id
+        DESC
+        LIMIT
+            #{page},#{row}
+    </select>
+
+<!--    UserEntity findById(Integer id);-->
+    <select id="findById" resultType="com.fssoft.freight.interface_zyw.module.entity.UserEntity">
+        SELECT
+            *
+        FROM
+            oil_card
+        WHERE
+            id=#{id}
+    </select>
+
+<!--    Integer findTruckerIdByMobile(String mobile);-->
+    <select id="findTruckerIdByMobile" resultType="java.lang.Integer">
+        SELECT
+            trucker_id
+        FROM
+            oil_card
+        WHERE
+            mobile=#{mobile}
+    </select>
+
+<!--    Integer addCardNoByTruckerId(String cardNo,Integer truckerId);-->
+    <update id="updateCardNoByTruckerId" >
+        UPDATE
+            oil_card
+        SET
+            card_no = #{cardNo}
+        WHERE
+            trucker_id = #{truckerId}
+    </update>
+
+<!--    Integer upDataBalance(Integer userId);-->
+    <update id="upDataBalance">
+        UPDATE
+            oil_card
+        SET
+            balance=#{balance}
+        WHERE
+            user_id=#{userId}
+    </update>
+
+</mapper>

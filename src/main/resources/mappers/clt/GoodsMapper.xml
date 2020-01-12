@@ -1,0 +1,831 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.GoodsMapper">
+    <resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.Goods">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="user_id" jdbcType="INTEGER" property="userId"/>
+        <result column="load_address_id" jdbcType="INTEGER" property="loadAddressId"/>
+        <result column="unload_address_id" jdbcType="INTEGER" property="unloadAddressId"/>
+        <result column="goods_load_time" jdbcType="TIMESTAMP" property="goodsLoadTime"/>
+        <result column="goods_publish_type" jdbcType="TINYINT" property="goodsPublishType"/>
+        <result column="goods_type_id" jdbcType="INTEGER" property="goodsTypeId"/>
+        <result column="goods_weight" jdbcType="VARCHAR" property="goodsWeight"/>
+        <result column="goods_weight_unit" jdbcType="VARCHAR" property="goodsWeightUnit"/>
+        <result column="goods_price" jdbcType="DECIMAL" property="goodsPrice"/>
+        <result column="freeze_price" jdbcType="DECIMAL" property="freezePrice"/>
+        <result column="service_price" jdbcType="DECIMAL" property="servicePrice"/>
+        <result column="manager_price" jdbcType="DECIMAL" property="managerPrice"/>
+        <result column="goods_price_car" jdbcType="DECIMAL" property="goodsPriceCar"/>
+        <result column="goods_real_price" jdbcType="DECIMAL" property="goodsRealPrice"/>
+        <result column="lose_weigh" jdbcType="VARCHAR" property="loseWeigh"/>
+        <result column="is_auto" jdbcType="TINYINT" property="isAuto"/>
+        <result column="car_container_id" jdbcType="VARCHAR" property="carContainerId"/>
+        <result column="car_length_id" jdbcType="VARCHAR" property="carLengthId"/>
+        <result column="memo" jdbcType="VARCHAR" property="memo"/>
+        <result column="goods_num" jdbcType="INTEGER" property="goodsNum"/>
+        <result column="goods_balance" jdbcType="INTEGER" property="goodsBalance"/>
+        <result column="goods_limit_day" jdbcType="INTEGER" property="goodsLimitDay"/>
+        <result column="goods_overtime_price" jdbcType="DECIMAL" property="goodsOvertimePrice"/>
+        <result column="is_invoice" jdbcType="TINYINT" property="isInvoice"/>
+        <result column="status" jdbcType="TINYINT" property="status"/>
+        <result column="is_publish" jdbcType="TINYINT" property="isPublish"/>
+        <result column="is_delete" jdbcType="TINYINT" property="isDelete"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="rec_owner_id" jdbcType="INTEGER" property="recOwnerId"/>
+        <result column="send_owner_id" jdbcType="INTEGER" property="sendOwnerId"/>
+        <result column="goods_name" jdbcType="VARCHAR" property="goodsName"/>
+        <result column="contract_code" jdbcType="VARCHAR" property="contractCode"/>
+    </resultMap>
+
+    <select id="queryGoodsList" resultType="com.fssoft.freight.api.result.modules.goods.GoodsResult">
+        SELECT
+        dg.id as id, dg.user_id as userId,
+        dg.load_address_id as loadAddressId,
+        dg.unload_address_id as unloadAddressId,
+        dg.goods_load_time as goodsLoadTime,
+        dg.goods_publish_type as goodsPublishType,
+        dg.goods_type_id as goodsTypeId,
+        dg.goods_weight as goodsWeight,
+        dg.goods_price as goodsPrice,
+        dg.lose_weigh as loseWeigh,
+        dg.is_auto as isAuto,
+        dg.car_container_id as carContainerIds,
+        dg.car_length_id as carLengthIds,
+        dg.memo as memo,
+        dg.goods_num as goodsNum,
+        dg.goods_balance as goosBalance,
+        dg.goods_limit_day as goodsLimitDay,
+        dg.goods_overtime_price as goodsOvertimePrice,
+        dg.is_invoice as isInvoice,
+        dg.status as status,
+        dg.is_publish as isPublish,
+        dg.is_delete as isDelete,
+        dg.create_time as createTime,
+        dg.update_time as updateTime,
+        dg.offline
+        FROM dz_goods as dg
+        WHERE 1=1
+        <if test="updateTimeRangeStart != null and updateTimeRangeStart != ''">
+            AND dg.update_time &gt;= #{updateTimeRangeStart}
+        </if>
+        <if test="updateTimeRangeEnd != null and updateTimeRangeEnd != ''">
+            AND dg.update_time &lt;= #{updateTimeRangeEnd}
+        </if>
+        AND dg.is_delete = 0
+        <if test="orderSql != null and orderSql != ''">
+            ORDER BY dg.${orderSql}
+        </if>
+    </select>
+
+    <select id="findGoodsListByIds" resultMap="goodsList">
+        SELECT dg.id,
+        dg.goods_publish_type,
+        dg.user_id,
+        dg.offline,
+        dus.company_name,
+        dg.is_auto,
+        dg.goods_load_time,
+        duz.full_address as load_address ,
+        duz.province as load_province,
+        duz.city as load_city,
+        duzz.full_address as unload_address,
+        duzz.province as unload_province,
+        duzz.city as unload_city,
+        dg.goods_weight,
+        wd.dict_value as goods_type,
+        goods_num,
+        dg.car_container_id,
+        dg.car_length_id,
+        goods_balance, goods_price,
+        goods_price_car,
+        goods_publish_type,
+        duz.map_x,
+        duz.map_y,
+        duz1.map_x as umap_x,
+        duz1.map_y as umap_y,
+        dg.goods_weight_unit,
+        dg.goods_real_price,
+        dg.status,
+        dg.create_time,
+        dgr.goods_range,
+        dg.contract_code,
+        dg.goods_name,
+        dcc.id as send_owner_id,
+        dcc2.id as rec_owner_id,
+        dcc.company_name as send_owner_name,
+        dcc2.company_name as rec_owner_name,
+        <!-- 黄艳艳 -->
+        dg.memo as memo
+        FROM dz_goods as dg
+        LEFT JOIN dz_user_shipper_member as dusm ON dusm.member_user_id = dg.user_id
+        LEFT JOIN dz_user_shipper as dus ON dusm.user_id = dus.user_id
+        LEFT JOIN dz_goods_range as dgr ON dg.id = dgr.goods_id
+        LEFT JOIN dz_user_address as duz ON dg.load_address_id = duz.id
+        LEFT JOIN dz_user_address as duz1 ON dg.unload_address_id = duz1.id
+        LEFT JOIN dz_user_address as duzz ON dg.unload_address_id = duzz.id
+        LEFT JOIN wt_dict as wd ON dg.goods_type_id = wd.id
+        LEFT JOIN dz_cooperative_company as dcc ON dcc.id = dg.send_owner_id
+        LEFT JOIN dz_cooperative_company as dcc2 ON dcc.id = dg.rec_owner_id
+        WHERE 1 = 1 and dg.id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="findGoodsList" resultMap="goodsList">
+        SELECT dg.id,
+        dg.goods_publish_type,
+        dg.user_id,
+        dg.offline,
+        dus.company_name,
+        dg.is_auto,
+        dg.goods_load_time,
+        duz.full_address as load_address ,
+        duz.province as load_province,
+        duz.city as load_city,
+        duzz.full_address as unload_address,
+        duzz.province as unload_province,
+        duzz.city as unload_city,
+        dg.goods_weight,
+        wd.dict_value as goods_type,
+        goods_num,
+        dg.car_container_id,
+        dg.car_length_id,
+        goods_balance, goods_price,
+        goods_price_car,
+        duz.map_x,
+        duz.map_y,
+        dg.goods_weight_unit,
+        dg.goods_real_price,
+        dg.status,
+        dg.create_time,
+        dgr.goods_range,
+        dg.contract_code,
+        dg.goods_name,
+        dcc.id as send_owner_id,
+        dcc2.id as rec_owner_id,
+        dcc.company_name as send_owner_name,
+        dcc2.company_name as rec_owner_name,
+        <!-- 黄艳艳 -->
+        dg.memo as memo
+        FROM dz_goods as dg
+        LEFT JOIN dz_user_shipper_member as dusm ON dusm.member_user_id = dg.user_id
+        LEFT JOIN dz_user_shipper as dus ON dusm.user_id = dus.user_id
+        LEFT JOIN dz_goods_range as dgr ON dg.id = dgr.goods_id
+        LEFT JOIN dz_user_address as duz ON dg.load_address_id = duz.id
+        LEFT JOIN dz_user_address as duzz ON dg.unload_address_id = duzz.id
+        LEFT JOIN wt_dict as wd ON dg.goods_type_id = wd.id
+        LEFT JOIN dz_cooperative_company as dcc ON dcc.id = dg.send_owner_id
+        LEFT JOIN dz_cooperative_company as dcc2 ON dcc.id = dg.rec_owner_id
+        WHERE 1 = 1
+
+        <if test="type == 0">
+            AND dg.goods_publish_type = 0
+        </if>
+
+        <if test="type == 1 and goodsUserId==null">
+            AND ((dg.goods_publish_type = 1
+            AND dg.id IN
+            ( SELECT DISTINCT dzr.goods_id
+            FROM dz_goods_range dzr
+            LEFT JOIN dz_user_group_member dugm ON dzr.group_id = dugm.group_id
+            WHERE 1 = 1 AND dzr.is_delete = 0 AND #{userId} IN (dugm.user_id) )) or (
+            dg.goods_publish_type = 2 AND dg.id IN
+            (select dgu.goods_id from dz_goods_user dgu where dgu.user_id=#{userId} and dgu.status =1
+            and dgu.is_delete=0 and dgu.is_publish=1)))
+        </if>
+        <if test="type == 1 and goodsUserId !=null and goodsUserId !=0">
+            AND dg.goods_publish_type = 3
+            AND dg.id IN
+            (select dgu.goods_id from dz_goods_user dgu where user_id=#{goodsUserId} and status =1
+            and is_delete=0 and is_publish=1)
+        </if>
+
+        <if test="loadAreaId != null and loadAreaId != '' and loadAreaId != 0">
+            AND duz.area_id like concat( #{loadAreaId}, '%')
+        </if>
+        <if test="unloadAreaId != null and unloadAreaId != '' and unloadAreaId != 0">
+            AND duzz.area_id like concat(#{unloadAreaId}, '%')
+        </if>
+
+        <if test="goodsType != null and goodsType != '' and goodsType != 0">
+            AND dg.goods_type_id = #{goodsType}
+        </if>
+
+        <if test="keyword != null and keyword != ''">
+            AND (dus.company_name like concat('%', #{keyword}, '%') or duz.full_address like concat('%', #{keyword},
+            '%') or duzz.full_address like concat('%', #{keyword}, '%') or dg.goods_weight like concat('%', #{keyword},
+            '%') 
+            or dg.goods_weight_unit like concat('%', #{keyword}, '%') or dg.contract_code like concat('%', #{keyword},
+            '%') or dg.goods_name like concat('%', #{keyword}, '%') or dcc.company_name like concat('%', #{keyword},
+            '%') or dcc2.company_name like concat('%', #{keyword}, '%'))
+        </if>
+
+        <if test="list != null and list != '' and type !=1 and type !=0">
+            AND dg.user_id in ${list}
+        </if>
+        <if test="list == null or list == '' and goodsUserId==null">
+            AND dg.goods_publish_type !=3
+        </if>
+        <if test="goodsPublishType != null and goodsPublishType != ''">
+            AND #{goodsPublishType} >=dg.goods_publish_type
+        </if>
+        <if test="userselfId != null and userselfId != ''">
+            AND dg.user_id = #{userselfId}
+        </if>
+        AND dg.is_delete = 0 and dg.status = 1 and dg.is_publish = 1 group by dg.id ORDER BY dg.create_time DESC
+
+    </select>
+
+    <resultMap id="goodsList" type="com.fssoft.freight.api.result.api.result.goods.ApiGoodsListResult">
+        <id column="id" property="goodsId"/>
+        <id column="goods_publish_type" property="goodsPublishType"/>
+        <result column="user_id" property="goodsUserId"/>
+        <result column="company_name" property="goodsUserName"/>
+        <result column="is_auto" property="isAuto"/>
+        <result column="goods_load_time" property="goodsLoadTime"/>
+        <result column="load_address" property="loadArea"/>
+        <result column="load_province" property="loadProvince"/>
+        <result column="load_city" property="loadCity"/>
+        <result column="unload_address" property="unLoadArea"/>
+        <result column="unload_province" property="unLoadProvince"/>
+        <result column="unload_city" property="unLoadCity"/>
+        <result column="goods_weight" property="goodsWeight"/>
+        <result column="goods_type" property="goodsType"/>
+        <result column="car_container_id" property="carContainerIds"/>
+        <result column="car_length_id" property="carLengthIds"/>
+        <result column="goods_price" property="goodsPrice"/>
+        <result column="goods_price_car" property="goodsPriceCar"/>
+        <result column="goods_weight_unit" property="goodsWeightUnit"/>
+        <result column="goods_real_price" property="goodsRealPrice"/>
+        <result column="goods_balance" property="goodsBalance"/>
+        <result column="map_x" property="goodsLoadX"/>
+        <result column="map_y" property="goodsLoadY"/>
+        <result column="umap_x" property="goodsUnloadX"/>
+        <result column="umap_y" property="goodsUnloadY"/>
+        <result column="create_time" property="createTime"/>
+        <result column="status" property="status"/>
+        <result column="goods_range" property="goodsRange"/>
+        <result column="goods_num" property="goodsNum"/>
+        <result column="rec_owner_id" property="recOwnerId"/>
+        <result column="rec_owner_name" property="recOwnerName"/>
+        <result column="send_owner_id" property="sendOwnerId"/>
+        <result column="send_owner_name" property="sendOwnerName"/>
+        <result column="goods_name" property="goodsName"/>
+        <result column="contract_code" property="contractCode"/>
+        <!-- # 2019-12-19 黄艳艳 add -->
+        <result column="memo" property="memo"/>
+    </resultMap>
+
+
+    <select id="findGoodsInfo" resultMap="goodsInfo">
+        SELECT
+        dg.id,dg.offline,
+        dg.goods_publish_type,
+        dg.is_auto,
+        dg.is_invoice,
+        dus.company_name,
+        dus.contacts_phone,
+        dus.contacts_name,
+        dg.goods_load_time,
+        dg.car_container_id,
+        dg.car_length_id,
+        duz.full_address as load_address ,
+        duz.contacts AS load_address_user_name,
+         duz.phone AS load_address_user_phone,
+        duzz.full_address as unload_address,
+        duzz.contacts AS unload_address_user_name,
+         duzz.phone AS unload_address_user_phone,
+        dg.goods_weight,
+        wd.dict_value as goods_type,
+        dg.memo,
+        dgu.status,
+        dgu.quoted_price,
+        dg.receive_user_id,
+        dus1.contacts_name as receiveUserName,
+        dg.goods_price_car,
+        dg.status as goodsStatus,
+        goods_price,
+        dg.goods_weight_unit,
+        dg.goods_real_price,
+        dg.lose_weigh,
+        dg.goods_limit_day,
+        dg.goods_overtime_price,
+        dg.contract_code,
+        dg.goods_name,
+        dcc2.company_name as rec_owner_name,
+        dcc.company_name as send_owner_name
+        FROM dz_goods as dg
+        LEFT JOIN dz_goods_user as dgu ON dg.id = dgu.goods_id AND dgu.user_id = #{userId} and dgu.is_delete = 0
+         LEFT JOIN dz_user as du ON dg.user_id = du.id
+          LEFT JOIN dz_user_shipper as dus1 ON dg.receive_user_id = dus1.user_id
+        LEFT JOIN dz_user_shipper as dus ON dg.user_id = dus.user_id
+        LEFT JOIN dz_user_address as duz ON dg.load_address_id = duz.id
+        LEFT JOIN dz_user_address as duzz ON dg.unload_address_id = duzz.id
+        LEFT JOIN wt_dict as wd ON dg.goods_type_id = wd.id
+        LEFT JOIN dz_cooperative_company as dcc ON dcc.id = dg.send_owner_id
+        LEFT JOIN dz_cooperative_company as dcc2 ON dcc.id = dg.rec_owner_id
+        WHERE 1 = 1
+        AND dg.is_publish = 1 AND dg.is_delete = 0 AND dg.`status` = 1 AND dg.id = #{id}
+
+    </select>
+
+    <select id="findGoodsDetail" resultMap="goodsDetail">
+        SELECT
+            dg.id,
+            dg.load_address_id,
+            duz.full_address AS load_address,
+            duz.contacts AS load_address_user_name,
+            duz.phone AS load_address_user_phone,
+            duz.map_x,duz.map_y,
+            dg.unload_address_id AS unload_address_id,
+            duzz.full_address AS unload_address,
+            duzz.contacts AS unload_address_user_name,
+            duzz.phone AS unload_address_user_phone,
+            dg.goods_publish_type,
+            dg.status,
+             dg.is_publish,
+            dg.goods_load_time,
+            dg.goods_type_id,
+            wd.dict_value AS goods_type,
+            dg.goods_weight,
+            dg.goods_weight_unit,
+            dg.goods_price,
+            dg.goods_price_car,
+            dg.goods_real_price,
+            dg.lose_weigh,
+            dg.receive_user_id,
+            (CASE WHEN du1.type = 0 THEN dus.contacts_name WHEN du1.type = 1 THEN dud.username END) AS receive_user_name,
+            dg.is_auto,
+            dg.car_container_id,
+            dg.car_length_id,
+            dg.memo,
+            dg.goods_num,
+            dg.goods_limit_day,
+            dg.goods_overtime_price,
+            dg.is_invoice,
+            (SELECT dict_value FROM wt_dict WHERE dict_key='platform_fee')as platform_fee,
+            (SELECT dict_value FROM wt_dict WHERE dict_key='proportion_of_dispatch_fee')as proportion_of_dispatch_fee,
+             dg.contract_code,
+       		 dg.goods_name,
+       		 dus.company_name as goods_company_name,
+       		 dcc.id as send_owner_id,
+       		 dcc2.id as rec_owner_id,
+       		 dcc.company_name as send_owner_name,
+       		 dcc2.company_name as rec_owner_name
+        FROM
+            dz_goods AS dg
+        LEFT JOIN dz_user AS du ON dg.user_id = du.id
+        LEFT JOIN dz_user AS du1 ON dg.receive_user_id = du1.id
+        LEFT JOIN dz_user_driver dud ON du1.id = dud.user_id
+        LEFT JOIN dz_user_shipper dus ON du1.id = dus.user_id
+        LEFT JOIN dz_user_address AS duz ON dg.load_address_id = duz.id
+        LEFT JOIN dz_user_address AS duzz ON dg.unload_address_id = duzz.id
+        LEFT JOIN wt_dict AS wd ON dg.goods_type_id = wd.id
+        LEFT JOIN dz_cooperative_company as dcc ON dcc.id = dg.send_owner_id
+        LEFT JOIN dz_cooperative_company as dcc2 ON dcc.id = dg.rec_owner_id
+        WHERE
+        dg.id = #{id}
+    </select>
+
+    <resultMap id="goodsDetail" type="com.fssoft.freight.api.result.api.result.goods.ApiGoodsDetailResult">
+        <id column="id" property="id"/>
+        <result column="load_address_id" property="loadAddressId"/>
+        <result column="load_address" property="loadAddress"/>
+        <result column="load_address_user_name" property="loadAddressUserName"/>
+        <result column="load_address_user_phone" property="loadAddressUserPhone"/>
+        <result column="unload_address_id" property="unloadAddressId"/>
+        <result column="unload_address" property="unloadAddress"/>
+        <result column="unload_address_user_name" property="unloadAddressUserName"/>
+        <result column="unload_address_user_phone" property="unloadAddressUserPhone"/>
+        <result column="goods_publish_type" property="goodsPublishType"/>
+        <result column="goods_range_id" property="goodsRangeId"/>
+        <result column="goods_range" property="goodsRange"/>
+        <result column="goods_load_time" property="goodsLoadTime"/>
+        <result column="goods_type_id" property="goodsTypeId"/>
+        <result column="goods_type" property="goodsType"/>
+        <result column="goods_weight" property="goodsWeight"/>
+        <result column="goods_weight_unit" property="goodsWeightUnit"/>
+        <result column="goods_price" property="goodsPrice"/>
+        <result column="goods_price_car" property="goodsPriceCar"/>
+        <result column="goods_real_price" property="goodsRealPrice"/>
+        <result column="lose_weigh" property="loseWeigh"/>
+        <result column="receive_user_id" property="receiveUserId"/>
+        <result column="receive_user_name" property="receiveUserName"/>
+        <result column="is_auto" property="isAuto"/>
+        <result column="car_container_id" property="carContainerIds"/>
+        <result column="car_length_id" property="carLengthIds"/>
+        <result column="memo" property="memo"/>
+        <result column="goods_num" property="goodsNum"/>
+        <result column="goods_limit_day" property="goodsLimitDay"/>
+        <result column="goods_overtime_price" property="goodsOvertimePrice"/>
+        <result column="is_invoice" property="isInvoice"/>
+        <result column="platform_fee" property="platformFee"/>
+        <result column="map_x" property="mapX"/>
+        <result column="map_y" property="mapY"/>
+        <result column="status" property="status"/>
+        <result column="is_publish" property="isPublish"/>
+        <result column="proportion_of_dispatch_fee" property="proportionOfDispatchFee"/>
+        <result column="rec_owner_id" property="recOwnerId"/>
+        <result column="rec_owner_name" property="recOwnerName"/>
+        <result column="send_owner_id" property="sendOwnerId"/>
+        <result column="send_owner_name" property="sendOwnerName"/>
+        <result column="goods_name" property="goodsName"/>
+        <result column="contract_code" property="contractCode"/>
+        <result column="goods_company_name" property="goodsCompanyName"/>
+
+    </resultMap>
+
+    <resultMap id="goodsInfo" type="com.fssoft.freight.api.result.api.result.goods.ApiGoodsResult">
+        <id column="id" property="id"/>
+        <result column="company_name" property="goodsCompanyName"/>
+        <result column="contacts_phone" property="goodsUserPhone"/>
+        <result column="contacts_name" property="goodsUserName"/>
+        <result column="goods_load_time" property="goodsLoadTime"/>
+        <result column="lose_weigh" property="loseWeigh"/>
+        <result column="load_address" property="loadArea"/>
+        <result column="unload_address" property="unLoadArea"/>
+        <result column="goods_weight" property="goodsWeight"/>
+        <result column="goods_type" property="goodsType"/>
+        <result column="car_container_id" property="carContainerIds"/>
+        <result column="car_length_id" property="carLengthIds"/>
+        <result column="goods_price" property="goodsPrice"/>
+        <result column="goods_price_car" property="goodsPriceCar"/>
+        <result column="quoted_price" property="quotedPrice"/>
+        <result column="goods_weight_unit" property="goodsWeightUnit"/>
+        <result column="goods_real_price" property="goodsRealPrice"/>
+        <result column="goods_limit_day" property="goodsLimitDay"/>
+        <result column="goods_overtime_price" property="goodsOvertimePrice"/>
+        <result column="receive_user_id" property="receiveUserId"/>
+        <result column="receiveUserName" property="receiveUserName"/>
+        <result column="memo" property="memo"/>
+        <result column="status" property="status"/>
+        <result column="goodsStatus" property="goodsStatus"/>
+        <result column="rec_owner_name" property="recOwnerName"/>
+        <result column="send_owner_name" property="sendOwnerName"/>
+        <result column="goods_name" property="goodsName"/>
+        <result column="contract_code" property="contractCode"/>
+        <result column="offline" property="offline"/>
+        <result column="goods_publish_type" property="goodsPublishType"/>
+        <result column="is_auto" property="isAuto"/>
+        <result column="is_invoice" property="isInvoice"/>
+         <result column="load_address_user_name" property="loadAddressUserName"/>
+        <result column="load_address_user_phone" property="loadAddressUserPhone"/>
+        <result column="unload_address_user_name" property="unloadAddressUserName"/>
+        <result column="unload_address_user_phone" property="unloadAddressUserPhone"/>
+    </resultMap>
+
+
+    <select id="deleteGoodsListByIdList">
+        update dz_goods set is_delete = 1 where id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="findDriverList" resultMap="driverList">
+        SELECT
+            dgu.id,
+            ddc.car_no,
+            dud.username as user_name,
+            dud.level,
+            dud.photo,
+            du.phone,
+            dgu.quoted_price
+        FROM
+            dz_goods_user dgu
+        LEFT JOIN dz_user_driver dud ON dud.user_id = dgu.user_id
+        LEFT JOIN dz_driver_car ddc ON dgu.user_car_id = ddc.id
+        LEFT JOIN dz_user du ON du.id = dgu.user_id
+        WHERE
+            dgu.goods_id = #{goodsId} AND dgu.`status` = 1 AND dgu.quoted_price is not null
+    </select>
+
+    <resultMap id="driverList" type="com.fssoft.freight.api.result.api.result.driver.ApiDriverListResult">
+        <id column="id" property="id"/>
+        <result column="user_name" property="userName"/>
+        <result column="level" property="level"/>
+        <result column="photo" property="photo"/>
+        <result column="car_no" property="carNo"/>
+        <result column="quoted_price" property="quotedPrice"/>
+        <result column="phone" property="phone"/>
+    </resultMap>
+
+    <select id="updateGoodsUserStatusById">
+        UPDATE dz_goods_user SET `status` = 0 ,update_time = NOW() WHERE id IN
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="findDictionariesInfo" parameterType="java.lang.String" resultType="java.util.Map">
+        SELECT id,dict_value from wt_dict WHERE dict_key = #{dictKey} AND is_delete = 0
+    </select>
+
+    <select id="findDictionariesInfoNew" parameterType="java.lang.String" resultType="java.util.Map">
+        SELECT id,dict_value from wt_dict WHERE group_key = #{groupKey} AND is_delete = 0
+    </select>
+
+    <update id="closeGoods">
+        UPDATE dz_goods SET is_publish = 0, update_time = NOW() WHERE id = #{goodsId}
+    </update>
+
+    <update id="deleteGoods">
+        UPDATE dz_goods SET is_delete = 1,update_time = NOW() WHERE id = #{goodsId}
+    </update>
+
+    <select id="findExpenses" resultType="com.fssoft.freight.api.result.api.result.goods.ApiGoodsExpensesResult">
+        select 
+        a.dict_value as platformFee,
+        b.dict_value as proportionOfDispatchFee,
+        c.dict_value as platformPayeeSacctno,
+        d.dict_value as truckbrokerPayeeSacctno
+        from 
+        wt_dict a,
+        wt_dict b,
+        wt_dict c,
+        wt_dict d
+        WHERE 
+        a.dict_key = 'platform_fee' AND 
+        b.dict_key = 'proportion_of_dispatch_fee' AND
+        c.dict_key = 'platform_payee_sacctno' AND
+        d.dict_key = 'truckbroker_payee_sacctno'
+    </select>
+
+
+    <select id="queryUserTempaleLists" resultType="com.fssoft.freight.api.result.api.result.goods.ApiGoodsDetailResult">
+        SELECT
+        dg.id ,
+        dg.load_user_area_id AS loadAddressId,
+        dua.full_address AS loadAddress,
+        dua.address AS loadAddressUserName,
+        dua.province as loadProvince,
+        dua.city as loadCity,
+        dua.phone as loadAddressUserPhone,
+        dg.unload_user_area_id AS unloadAddressId,
+        duaa.full_address AS unloadAddress,
+        duaa.address AS unloadAddressUserName,
+        duaa.province as unloadProvince,
+        duaa.city as unloadCity,
+        duaa.phone AS unloadAddressUserPhone,
+        dg.goods_publish_type AS goodsPublishType,
+        dg.goods_load_time,
+        dg.goods_type_id,
+        wd.dict_value AS goodsType,
+        dg.goods_weight,
+        dg.goods_weight_unit AS goodsWeightUnit,
+        dg.goods_price,
+        dg.goods_real_price AS goodsRealPrice,
+        dg.lose_weigh,
+        dg.receive_userId,
+        (CASE WHEN du1.type = 0 THEN dus.contacts_name WHEN du1.type = 1 THEN dud.username END) AS receive_user_name,
+        (SELECT dict_value FROM wt_dict WHERE dict_key='platform_fee')AS platform_fee,
+        (SELECT dict_value FROM wt_dict WHERE dict_key='proportion_of_dispatch_fee')as proportion_of_dispatch_fee,
+        dg.is_auto,
+        dg.car_container_id as carContainerIds,
+        dg.car_length_id AS carLengthIds,
+         dg.memo,
+        dg.ranges as goodsRange,
+        dg.group_id AS goodsRangeGroup,
+        dg.group_id AS groupId,
+        dg.map_x AS mapX,
+        dg.map_y AS mapY,
+        dg.goods_name as goodsName,
+        dg.offline,
+        dg.goods_limit_day as goodsLimitDay,
+        dg.goods_overtime_price as goodsOvertimePrice,
+        dg.is_invoice as isInvoice,
+        dg.driver_id as driverId,
+        dg.shipper_id as shipperId
+        FROM
+        dz_user_tempale AS dg
+        LEFT JOIN wt_dict AS wd ON dg.goods_type_id = wd.id
+        LEFT JOIN dz_user AS du1 ON dg.receive_userId = du1.id
+        LEFT JOIN dz_user_shipper dus ON du1.id = dus.user_id
+        LEFT JOIN dz_user_driver dud ON du1.id = dud.user_id
+        LEFT JOIN dz_user_address AS dua ON dg.load_user_area_id = dua.id
+        LEFT JOIN dz_user_address AS duaa ON dg.unload_user_area_id = duaa.id
+        WHERE dg.user_id IN
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        and dg.is_delete = 0 group by dg.id
+    </select>
+
+    <select id="findReceiveUserList"
+            resultType="com.fssoft.freight.api.result.api.result.goods.ApiGoodsReceiveUserListResult">
+        SELECT
+            dusm.member_user_id AS userId,
+            (CASE WHEN du.type = 0 THEN dus.contacts_name WHEN du.type = 1 THEN dud.username END) AS username,
+            (CASE WHEN du.type = 0 THEN dus.photo WHEN du.type = 1 THEN dud.photo END) AS photo,
+            dusm.type
+        FROM
+            dz_user_shipper_member dusm
+        LEFT JOIN dz_user du ON dusm.member_user_id = du.id
+        LEFT JOIN dz_user_driver dud ON dusm.member_user_id = dud.user_id
+        LEFT JOIN dz_user_shipper dus ON dusm.member_user_id = dus.user_id
+        WHERE
+            dusm.user_id = #{userId}
+        AND dusm.is_publish = 1
+        AND dusm.is_delete = 0
+    </select>
+
+    <select id="findUserBalance" resultType="java.math.BigDecimal">
+        select balance FROM dz_user_shipper WHERE user_id = #{userId}
+    </select>
+
+    <select id="findShipperGoodsList"
+            resultType="com.fssoft.freight.api.result.api.result.goods.ApiShipperGoodsListResult">
+        SELECT
+        dg.id AS goodsId,
+        dg.is_auto AS isAuto,
+        dg.user_id AS goodsUserId,
+        duz.full_address AS loadArea,
+        duz.province AS loadProvince,
+        duz.city AS loadCity,
+        duzz.full_address AS unLoadArea,
+        duzz.province AS unLoadProvince,
+        duzz.city AS unLoadCity,
+        dg.goods_weight AS goodsWeight,
+        wd.dict_value AS goodsType,
+        goods_num AS goodsNum,
+        goods_price_car AS goodsPriceCar,
+        goods_balance AS goodsBalance,
+        goods_price AS goodsPrice,
+        dg.goods_weight_unit AS goodsWeightUnit,
+        dg.goods_real_price,
+        dg.STATUS,
+        dg.is_publish AS isPublish,
+        dg.create_time AS createTime,
+        dgr.goods_range,
+        dg.offline,
+        dg.goods_publish_type AS goodsPublishType,
+        dg.car_container_id AS carContainerIds,
+        dg.car_length_id AS carLengthIds
+        FROM
+        dz_goods AS dg
+        LEFT JOIN dz_user_shipper AS dus ON dg.user_id = dus.user_id
+        LEFT JOIN dz_goods_range AS dgr ON dg.id = dgr.goods_id
+        LEFT JOIN dz_user_address AS duz ON dg.load_address_id = duz.id
+        LEFT JOIN dz_user_address AS duzz ON dg.unload_address_id = duzz.id
+        LEFT JOIN wt_dict AS wd ON dg.goods_type_id = wd.id
+        WHERE
+        dg.is_delete = 0
+        <if test="list != null and list != ''">
+            AND dg.user_id in ${list}
+        </if>
+        <if test="userId != null and userId != ''">
+            AND dg.user_id = #{userId}
+        </if>
+        <if test="createTimeRangeStart != null and createTimeRangeStart != ''">
+            AND dg.create_time &gt;= #{createTimeRangeStart}
+        </if>
+        <if test="createTimeRangeEnd != null and createTimeRangeEnd != ''">
+            AND dg.create_time &lt;= #{createTimeRangeEnd}
+        </if>
+        <if test="loadArea != null and loadArea != ''">
+            AND duz.full_address like concat('%', #{loadArea}, '%')
+        </if>
+        <if test="unLoadArea != null and unLoadArea != ''">
+            AND duzz.full_address like concat('%', #{unLoadArea}, '%')
+        </if>
+        <if test="receiverId != null and receiverId != ''">
+            AND dg.receive_user_id = #{receiverId}
+        </if>
+
+        <if test="status != null and status == 0">
+            AND dg.is_publish = 1
+        </if>
+        <if test="status != null and status != 0">
+            AND dg.is_publish = 0
+        </if>
+        <if test="isInfomaster4Goods != null and isInfomaster4Goods ==1">
+            AND 1=0
+        </if>
+        GROUP BY dg.id
+        UNION ALL
+        SELECT
+        id AS goodsId,
+        0 AS isAuto,
+        CAST( username AS SIGNED ) AS goodsUserId,
+        info AS loadArea,
+        setoutprovince AS loadProvince,
+        setoutcity AS loadCity,
+        '' AS unLoadArea,
+        destinationprovince AS unLoadProvince,
+        destcounty AS unLoadCity,
+        cweight AS goodsWeight,
+        ctype AS goodsType,
+        tnum AS goodsNum,
+        0.00 AS goodsPriceCar,
+        0.00 AS goodsBalance,
+        0.00 AS goodsPrice,
+        cargoinfoid AS goodsWeightUnit,
+        0.00 AS goods_real_price,
+        `status` AS `STATUS`,
+        `status` AS isPublish,
+        sendtime AS createTime,
+        '' AS goods_range,
+        1 AS offline,
+        4 AS goodsPublishType,
+        ttype AS carContainerIds,
+        tlength AS carLengthIds
+        FROM
+        dz_infomaster
+        WHERE
+        id2 = -1
+        <if test="list != null and list != ''">
+            AND CAST( username AS SIGNED ) in ${list}
+        </if>
+        <if test="userId != null and userId != ''">
+            AND CAST( username AS SIGNED ) = #{userId}
+        </if>
+        <if test="createTimeRangeStart != null and createTimeRangeStart != ''">
+            AND sendtime &gt;= #{createTimeRangeStart}
+        </if>
+        <if test="createTimeRangeEnd != null and createTimeRangeEnd != ''">
+            AND sendtime &lt;= #{createTimeRangeEnd}
+        </if>
+        <if test="status != null and status == 0">
+            AND `status` = 1
+        </if>
+        <if test="status != null and status != 0">
+            AND `status` = 0
+        </if>
+        <if test="isInfomaster4Goods != null and isInfomaster4Goods==0">
+            AND 1=0
+        </if>
+        ORDER BY 20 DESC
+
+    </select>
+
+    <!-- 2019-12-16 黄艳艳 add -->
+    <insert id="addGoodsScan" parameterType="com.fssoft.freight.dao.persistence.entity.GoodsScan" statementType="CALLABLE">
+    {call  process_goods_scan(
+        #{userId, mode=IN},
+        #{loadAddressId, mode=IN},
+        #{areaId, mode=IN}
+    )}
+    </insert>
+
+    <!-- 2019-12-16 黄艳艳 add -->
+    <select id="findGoodsScan" resultMap="goodsList">
+        SELECT dg.id,
+        dg.goods_publish_type,
+        dg.user_id,
+        dg.offline,
+        dus.company_name,
+        dg.is_auto,
+        dg.goods_load_time,
+        duz.full_address as load_address ,
+        duz.province as load_province,
+        duz.city as load_city,
+        duzz.full_address as unload_address,
+        duzz.province as unload_province,
+        duzz.city as unload_city,
+        dg.goods_weight,
+        wd.dict_value as goods_type,
+        goods_num,
+        dg.car_container_id,
+        dg.car_length_id,
+        goods_balance, goods_price,
+        goods_price_car,
+        duz.map_x,
+        duz.map_y,
+        dg.goods_weight_unit,
+        dg.goods_real_price,
+        dg.status,
+        dg.create_time,
+        dgr.goods_range,
+        dg.contract_code,
+        dg.goods_name,
+        dcc.id as send_owner_id,
+        dcc2.id as rec_owner_id,
+        dcc.company_name as send_owner_name,
+        dcc2.company_name as rec_owner_name,
+        <!-- 黄艳艳 -->
+        dg.memo as memo
+        FROM dz_goodscan as dg
+        LEFT JOIN dz_user_shipper_member as dusm ON dusm.member_user_id = dg.user_id
+        LEFT JOIN dz_user_shipper as dus ON dusm.user_id = dus.user_id
+        LEFT JOIN dz_goods_range as dgr ON dg.id = dgr.goods_id
+        LEFT JOIN dz_user_address as duz ON dg.load_address_id = duz.id
+        LEFT JOIN dz_user_address as duzz ON dg.unload_address_id = duzz.id
+        LEFT JOIN wt_dict as wd ON dg.goods_type_id = wd.id
+        LEFT JOIN dz_cooperative_company as dcc ON dcc.id = dg.send_owner_id
+        LEFT JOIN dz_cooperative_company as dcc2 ON dcc.id = dg.rec_owner_id
+        WHERE User_id_scan = #{userId}
+        ORDER BY dg.create_time DESC
+    </select>
+
+    <!-- 2019-12-16 黄艳艳 add -->
+    <delete id="delGoodsScan">
+        delete from dz_goodscan
+        where goods_name=#{goodsName}
+    </delete>
+
+</mapper>

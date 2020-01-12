@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.UserGaslogMapper">
+  <resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.UserGaslog">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="order_no" jdbcType="VARCHAR" property="orderNo" />
+    <result column="gasCardId" jdbcType="INTEGER" property="gascard_id" />
+    <result column="inOutFlag" jdbcType="INTEGER" property="IN_OUT_FLAG" />
+    <result column="amount" jdbcType="DECIMAL" property="amount" />
+    <result column="balance" jdbcType="DECIMAL" property="balance" />
+    <result column="createDate" jdbcType="TIMESTAMP" property="create_date" />
+    <result column="descp" jdbcType="VARCHAR" property="descp" />
+    <result column="state" jdbcType="INTEGER" property="state" />
+   </resultMap>
+
+
+</mapper>

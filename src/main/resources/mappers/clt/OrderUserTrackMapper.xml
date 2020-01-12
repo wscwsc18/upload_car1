@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.OrderUserTrackMapper">
+  <resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.OrderUserTrack">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="order_id" jdbcType="INTEGER" property="orderId" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="map_x" jdbcType="VARCHAR" property="mapX" />
+    <result column="map_y" jdbcType="VARCHAR" property="mapY" />
+    <result column="is_publish" jdbcType="TINYINT" property="isPublish" />
+    <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+
+    <select id="queryOrderUserTrackList" resultType="com.fssoft.freight.api.result.modules.orderUserTrack.OrderUserTrackResult">
+        SELECT
+            dout.id as id, dout.order_id as orderId, dout.user_id as userId, dout.map_x as mapX, dout.map_y as mapY, dout.is_publish as isPublish, dout.is_delete as isDelete, dout.create_time as createTime, dout.update_time as updateTime
+        FROM dz_order_user_track as dout
+        WHERE 1=1
+            <if test="updateTimeRangeStart != null and updateTimeRangeStart != ''">
+                AND dout.update_time >= #{updateTimeRangeStart}
+            </if>
+            <if test="updateTimeRangeEnd != null and updateTimeRangeEnd != ''">
+                AND #{updateTimeRangeEnd} >= dout.update_time
+            </if>
+            AND dout.is_delete = 0
+        <if test="orderSql != null and orderSql != ''">
+            ORDER BY dout.${orderSql}
+        </if>
+    </select>
+
+    <select id="deleteOrderUserTrackListByIdList" >
+        update dz_order_user_track set is_delete = 1 where id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+    
+    <select id="findDriverTrackList" resultType="com.fssoft.freight.api.result.api.result.order.ApiUserTrackResult">
+        SELECT map_x as mapX,
+        map_y as mapY,
+         update_time as creatOn
+         from dz_order_user_track WHERE order_id = #{orderId}  order by update_time
+    </select>
+
+
+    <select id="findDriverTrackLast" resultType="map">
+        SELECT map_x as mapX, map_y as mapY
+        from dz_order_user_track
+        WHERE user_id = #{userId}
+        order by create_time desc limit 1
+    </select>
+
+	<delete id="deleteB4days">
+		delete from dz_order_user_track where update_time &lt;= #{beginDate,jdbcType=TIMESTAMP}
+	</delete>
+	<update id="optimize">
+		optimize table dz_order_user_track
+	</update>
+</mapper>

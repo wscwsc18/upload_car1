@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.InfomasterMapper">
+  <resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.Infomaster">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="SetOutProvince" jdbcType="VARCHAR" property="setOutProvince" />
+    <result column="SetOutCity" jdbcType="VARCHAR" property="setOutCity" />
+    <result column="SetOutCounty" jdbcType="VARCHAR" property="setOutCounty" />
+    <result column="DestinationProvince" jdbcType="VARCHAR" property="destinationProvince" />
+    <result column="DestinationCity" jdbcType="VARCHAR" property="destinationCity" />
+    <result column="DestCounty" jdbcType="VARCHAR" property="destCounty" />
+    <result column="SendTime" jdbcType="VARCHAR" property="sendTime" />
+    <result column="InfoClass" jdbcType="VARCHAR" property="infoClass" />
+    <result column="Info" jdbcType="VARCHAR" property="info" />
+    <result column="PhoneNumber" jdbcType="VARCHAR" property="phoneNumber" />
+    <result column="UserNumber" jdbcType="INTEGER" property="userNumber" />
+    <result column="Source" jdbcType="VARCHAR" property="source" />
+    <result column="Cargoinfoid" jdbcType="VARCHAR" property="cargoinfoid" />
+    <result column="Username" jdbcType="VARCHAR" property="username" />
+    <result column="CWeight" jdbcType="VARCHAR" property="cWeight" />
+    <result column="CType" jdbcType="VARCHAR" property="cType" />
+    <result column="TNum" jdbcType="VARCHAR" property="tNum" />
+    <result column="TType" jdbcType="VARCHAR" property="TtType" />
+    <result column="TLength" jdbcType="VARCHAR" property="tLength" />
+    <result column="Price" jdbcType="VARCHAR" property="price" />
+    <result column="Currlocal" jdbcType="VARCHAR" property="currlocal" />
+    <result column="Lan" jdbcType="DECIMAL" property="lan" />
+    <result column="Lat" jdbcType="DECIMAL" property="lat" />
+    <result column="Geocode" jdbcType="VARCHAR" property="geocode" />
+    <result column="Repcount" jdbcType="INTEGER" property="repcount" />
+    <result column="Phone2" jdbcType="VARCHAR" property="phone2" />
+    <result column="Phone3" jdbcType="VARCHAR" property="phone3" />
+    <result column="shortPhone" jdbcType="VARCHAR" property="shortPhone" />
+    <result column="usernameB" jdbcType="VARCHAR" property="usernameB" />
+    <result column="note" jdbcType="VARCHAR" property="note" />
+    <result column="depart" jdbcType="VARCHAR" property="depart" />
+    <result column="agentID" jdbcType="VARCHAR" property="agentID" />
+    <result column="midCity" jdbcType="VARCHAR" property="midCity" />
+    <result column="contractCode" jdbcType="VARCHAR" property="contractCode" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="Updatetime" jdbcType="TIMESTAMP" property="Updatetime" />
+    <result column="id2" jdbcType="INTEGER" property="id2" />
+  </resultMap>
+
+    <select id="queryInfomasterList" parameterType="map" resultType="com.fssoft.freight.api.result.api.result.Infomaster.ApiInfomasterListResult">
+        SELECT
+        id,setOutProvince,setOutCity,setOutCounty,destinationProvince,destinationCity,destCounty,cType,info,id2
+        FROM dz_infomaster
+        <!--       WHERE id2 != -99 AND username !=#{userId} -->
+        WHERE
+        <!-- <if test="keyword != null and keyword != ''">  -->
+
+            <!-- setOutProvince like concat('%', #{startcity}, '%') OR
+            setOutCounty like concat('%', #{keyword}, '%') OR/
+            -->
+            setOutCity like concat('%', #{startcity}, '%') and
+            destinationCity like concat('%', #{destcity}, '%') and
+        <!--  destinationProvince like concat('%', #{keyword}, '%') OR
+
+         destCounty like concat('%', #{keyword}, '%') OR
+        cType like concat('%', #{keyword}, '%') OR -->
+
+            info like concat('%', #{keyword}, '%')
+        <!-- </if>  -->
+            ORDER BY  sendtime desc
+        </select>
+         <select id="findById"  resultType="com.fssoft.freight.api.result.api.result.Infomaster.ApiInfomasterResult">
+            SELECT
+            *
+            FROM dz_infomaster where id =#{id}
+        </select>
+       <delete id="truncate">
+               truncate table dz_infomaster
+       </delete>
+
+
+       <update id="closeInfomaster">
+            UPDATE dz_infomaster SET status=0, updatetime = NOW() WHERE id = #{id}
+        </update>
+
+        <update id="deleteInfomaster">
+            UPDATE dz_infomaster SET id2=#{id2},updatetime = NOW() WHERE id = #{id}
+        </update>
+
+        <select id="findInfomaster4Goods" resultType="com.fssoft.freight.api.result.api.result.Infomaster.ApiInfomaster4GoodsResult">
+        select
+        di.id,
+        di.cargoinfoid as goodsWeightUnit,
+        di.ctype as goodsType,
+        di.cweight as goodsWeight,
+        di.destcounty,
+        di.destinationcity,
+        di.destinationprovince,
+        di.id2,
+        di.info as memo,
+        di.infoclass as goodsPublishType,
+        di.phonenumber,
+        di.sendtime as goodsLoadTime,
+        di.contractcode as goodsName,
+        di.tnum as goodsNum,
+        di.setoutcity,
+        di.setoutcounty,
+        di.setoutprovince,
+        di.status,
+        di.tlength as carLengthNames,
+        di.ttype as carContainerNames
+         from dz_infomaster di
+        <where>
+            di.id=#{id}
+        </where>
+        </select>
+    </mapper>
+
+        <!--       22日早上09点整 wu222222222222  慢慢已经改动啦-->

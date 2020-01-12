@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.EtcConfMapper">
+	<select id="findEtcConfList" resultType="com.fssoft.freight.api.result.modules.etcConf.EtcConfResult">
+		SELECT 
+			ID id,
+			SERVICE_NAME serviceName,
+			LINK_MAN linkMan,
+			LINK_PHONE linkPhone,
+			JOIN_AREA joinArea,
+			REMARK remark,
+			STATE state,
+			CREATE_DATE createDate,
+			UPDATE_DATE updateDate
+		FROM DZ_ETC_CONF
+		WHERE STATE = 1
+		<if test="serviceName != null and serviceName != ''">
+			AND SERVICE_NAME LIKE '%${serviceName}%'
+		</if>
+		
+		<if test="linkMan != null and linkMan != ''">
+			AND LINK_MAN LIKE '%${linkMan}%'
+		</if>
+		
+		<if test="linkPhone != null and linkPhone != ''">
+			AND LINK_PHONE LIKE '%${linkPhone}%'
+		</if>
+		
+		<if test="joinArea != null and joinArea != ''">
+			AND JOIN_AREA LIKE '%${joinArea}%'
+		</if>
+	</select>
+</mapper>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.OrganizationAccountMapper">
+  <resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.OrganizationAccount">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="organization_id" jdbcType="INTEGER" property="organizationId" />
+    <result column="account_id" jdbcType="INTEGER" property="accountId" />
+  </resultMap>
+
+    <select id="queryOrganizationAccountList" resultType="com.fssoft.freight.api.result.modules.organizationAccount.OrganizationAccountResult">
+        SELECT
+            woa.`id` as id, woa.`organization_id` as organizationId, woa.`account_id` as accountId
+        FROM `wt_organization_account` as woa
+        WHERE 1=1
+            AND woa.is_delete = 0
+        <if test="orderSql != null and orderSql != ''">
+            ORDER BY woa.${orderSql}
+        </if>
+    </select>
+
+    <select id="deleteOrganizationAccountListByIdList" >
+        update `wt_organization_account` set is_delete = 1 where id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+</mapper>

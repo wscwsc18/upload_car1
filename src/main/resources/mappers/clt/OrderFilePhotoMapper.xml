@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.OrderFilePhotoMapper">
+  <resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.OrderFilePhoto">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <result column="order_file_id" jdbcType="INTEGER" property="orderFileId" />
+    <result column="photo" jdbcType="VARCHAR" property="photo" />
+  </resultMap>
+
+    <select id="queryOrderFilePhotoList" resultType="com.fssoft.freight.api.result.modules.orderFilePhoto.OrderFilePhotoResult">
+        SELECT
+            dofp.order_file_id as orderFileId, dofp.photo as photo
+        FROM dz_order_file_photo as dofp
+        WHERE 1=1
+            AND dofp.is_delete = 0
+        <if test="orderSql != null and orderSql != ''">
+            ORDER BY dofp.${orderSql}
+        </if>
+    </select>
+
+    <select id="findById" resultType="java.lang.String">
+        SELECT
+         dofp.photo as photo
+        FROM dz_order_file_photo as dofp
+        WHERE 1=1 AND  dofp.order_file_id  = #{id}
+    </select>
+
+
+    <select id="deleteOrderFilePhotoListByIdList" >
+        update dz_order_file_photo set is_delete = 1 where id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+    
+    <delete id="deleteOrderFilePhoto">
+        delete FROM dz_order_file_photo WHERE order_file_id = #{orderFileId}
+    </delete>
+</mapper>

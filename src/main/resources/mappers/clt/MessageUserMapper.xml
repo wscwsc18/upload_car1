@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.MessageUserMapper">
+    <resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.MessageUser">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="user_id" jdbcType="INTEGER" property="userId"/>
+        <result column="message_id" jdbcType="INTEGER" property="messageId"/>
+        <result column="is_read" jdbcType="TINYINT" property="isRead"/>
+        <result column="is_publish" jdbcType="TINYINT" property="isPublish"/>
+        <result column="is_delete" jdbcType="TINYINT" property="isDelete"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+
+    <insert id="insertNoRead">
+        INSERT INTO dz_message_user (user_id,message_id,is_read,is_publish,is_delete,create_time,update_time)
+        VALUES (#{userId},#{messageId},0,1,0,NOW(),NOW())
+    </insert>
+    
+    
+    <insert id="inserSystemMessagetList">
+        INSERT INTO dz_message_user (user_id,message_id,is_read,is_publish,is_delete,create_time,update_time)
+        VALUES 
+        <foreach collection="list" item="userId" separator=",">
+        (#{userId},#{messageId},0,1,0,NOW(),NOW())
+        </foreach>
+    </insert>
+    
+    
+    <update id="updatePush">
+    update dz_message_user 
+    	<set>
+             is_read = 1
+        </set>
+        where 1=1
+         AND message_id =#{messageId}
+    </update>
+
+    <insert id="insertOnDuplicateKeyUpdate" parameterType="com.fssoft.freight.dao.persistence.entity.MessageUser">
+        INSERT INTO dz_message_user (id,user_id,message_id,is_read,is_publish,is_delete,create_time,update_time)
+        VALUES (#{id},#{userId},#{messageId},#{isRead},#{isPublish},#{isDelete},#{createTime},#{updateTime})
+        ON DUPLICATE KEY UPDATE
+        is_read = VALUES(is_read),
+        update_time = VALUES(update_time)
+    </insert>
+
+    <insert id="insertListOnDuplicateKeyUpdate" parameterType="java.util.List">
+        INSERT INTO dz_message_user (id,user_id,message_id,is_read,is_publish,is_delete,create_time,update_time)
+        VALUES
+        <foreach collection="list" item="messageUser" separator=",">
+            (
+            #{messageUser.id}, #{messageUser.userId}, #{messageUser.messageId},
+            #{messageUser.isRead}, #{messageUser.isPublish}, #{messageUser.isDelete},
+            #{messageUser.createTime}, #{messageUser.updateTime}
+            )
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        is_read = VALUES(is_read),
+        update_time = VALUES(update_time)
+    </insert>
+</mapper>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.EtcinvoiceMapper">
+	<select id="getEtcinvoiceInfoByNo" resultType="com.fssoft.freight.api.result.modules.etcinvoice.EtcinvoiceResult">
+		select 
+		de.invoice_num as invoiceNum,
+		de.invoice_code as invoiceCode,
+		de.invoice_make_time as invoiceMakeTime,
+		de.invoice_url as invoiceUrl,
+		de.invoice_html_url as invoiceHtmlUrl,
+		de.en_station as enStation,
+		de.ex_station as exStation,
+		de.ex_time as exTime,
+		de.fee as fee,
+		de.total_tax_amount as totalTaxAmount,
+		de.plate_num as plateNum,
+		de.vehicle_type as vehicleType,
+		de.seller_name as sellerName,
+		de.seller_taxpayer_code as sellerTaxpayerCode,
+		de.waybill_num as waybillNum,
+		de.waybill_status as waybillStatus,
+		de.waybill_start_time as waybillStartTime,
+		de.waybill_end_time as waybillEndTime,
+		de.total_amount as totalAmount,
+		de.tax_rate as taxRate,
+		de.invoice_type as invoiceType,
+		de.amount as amount,
+		de.transaction_id as transactionId
+		from
+		dz_etcinvoice as de where de.waybill_num=#{no} and de.is_delete=0
+	</select>
+</mapper>

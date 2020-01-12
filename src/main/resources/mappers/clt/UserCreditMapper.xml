@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.UserCreditMapper">
+	<resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.UserCredit">
+		<id column="id" jdbcType="INTEGER" property="id" />
+		<result column="name" jdbcType="VARCHAR" property="name"/>
+		<result column="gender" jdbcType="VARCHAR" property="gender"/>
+		<result column="identity_number" jdbcType="VARCHAR" property="identityNumber"/>
+		<result column="mobile_telephone_number" jdbcType="VARCHAR" property="mobileTelephoneNumber"/>
+		<result column="qualification_certificate_number" jdbcType="VARCHAR" property="qualificationCertificateNumber"/>
+		<result column="qualification_certificate_category_code" jdbcType="VARCHAR" property="qualificationCertificateCategoryCode"/>
+		<result column="certification_unit" jdbcType="VARCHAR" property="certificationUnit"/>
+		<result column="license_initial_collection_date" jdbcType="VARCHAR" property="licenseInitialCollectionDate"/>
+		<result column="period_end_date" jdbcType="VARCHAR" property="periodEndDate"/>
+		<result column="photo" jdbcType="VARCHAR" property="photo"/>
+	</resultMap>
+	
+	<sql id="Base_Column_Sql">
+		id,
+		name,
+		gender,
+		identity_number,
+		mobile_telephone_number,
+		qualification_certificate_number,
+		qualification_certificate_category_code,
+		certification_unit,
+		license_initial_collection_date,
+		period_end_date,
+		photo
+	</sql>
+	
+	<select id="selectByIdentity" resultMap="BaseResultMap">
+		SELECT <include refid="Base_Column_Sql"/>
+		FROM DZ_USER_CREDIT
+		WHERE identity_number=#{identity} AND qualification_certificate_number=#{qualificationCertificateNumber}
+	</select>
+</mapper>

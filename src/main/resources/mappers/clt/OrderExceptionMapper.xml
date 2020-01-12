@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.OrderExceptionMapper">
+  <resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.OrderException">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="order_id" jdbcType="INTEGER" property="orderId" />
+    <result column="driver_id" jdbcType="INTEGER" property="driverId" />
+    <result column="shipper_id" jdbcType="INTEGER" property="shipperId" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+    <result column="is_confirm" jdbcType="TINYINT" property="isConfirm" />
+    <result column="is_publish" jdbcType="TINYINT" property="isPublish" />
+    <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+
+    <select id="queryOrderExceptionList" resultType="com.fssoft.freight.api.result.modules.orderException.OrderExceptionResult">
+        SELECT
+            doe.id as id, doe.order_id as orderId, doe.driver_id as driverId, doe.shipper_id as shipperId, doe.content as content, doe.is_confirm as isConfirm, doe.is_publish as isPublish, doe.is_delete as isDelete, doe.create_time as createTime, doe.update_time as updateTime
+        FROM dz_order_exception as doe
+        WHERE 1=1
+            <if test="updateTimeRangeStart != null and updateTimeRangeStart != ''">
+                AND doe.update_time >= #{updateTimeRangeStart}
+            </if>
+            <if test="updateTimeRangeEnd != null and updateTimeRangeEnd != ''">
+                AND #{updateTimeRangeEnd} >= doe.update_time
+            </if>
+            AND doe.is_delete = 0
+        <if test="orderSql != null and orderSql != ''">
+            ORDER BY doe.${orderSql}
+        </if>
+    </select>
+
+    <select id="deleteOrderExceptionListByIdList" >
+        update dz_order_exception set is_delete = 1 where id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="findOrderExceptionInfo" resultType="com.fssoft.freight.api.result.api.result.order.ApiOrderExceptionResult">
+        SELECT
+            id,
+            order_id,
+            is_confirm as isConfirm,
+            content,
+            create_time
+        FROM
+            dz_order_exception
+        WHERE
+            order_id = #{id}
+    </select>
+
+
+
+    <select id="findPhotos" resultType="java.lang.String">
+        SELECT photo FROM dz_order_exception_photo WHERE exception_id = #{id}
+    </select>
+
+
+    <update id="updateOrderExceptionStatus" parameterType="com.fssoft.freight.dao.persistence.entity.OrderException">
+        UPDATE dz_order_exception
+        <set>
+            <if test="isConfirm != null and isConfirm != ''">is_confirm = #{isConfirm},</if>
+            <if test="isPublish == 0">is_publish = #{isPublish},</if>
+            update_time = now()
+        </set>
+        where order_id = #{id}
+    </update>
+
+    <select id="findOrderExceptionByOrderId" resultType="com.fssoft.freight.dao.persistence.entity.OrderException">
+        SELECT * FROM dz_order_exception WHERE order_id = #{orderId}
+    </select>
+
+</mapper>

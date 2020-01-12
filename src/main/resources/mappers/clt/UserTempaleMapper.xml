@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.UserTempaleMapper">
+  <resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.UserTempale">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="load_user_area_id" jdbcType="INTEGER" property="loadUserAreaId" />
+    <result column="unload_user_area_id" jdbcType="INTEGER" property="unloadUserAreaId" />
+    <result column="goods_load_time" jdbcType="TIMESTAMP" property="goodsLoadTime" />
+    <result column="goods_publish_type" jdbcType="TINYINT" property="goodsPublishType" />
+    <result column="goods_type_id" jdbcType="INTEGER" property="goodsTypeId" />
+    <result column="goods_weight" jdbcType="VARCHAR" property="goodsWeight" />
+    <result column="goods_price" jdbcType="DECIMAL" property="goodsPrice" />
+    <result column="lose_weigh" jdbcType="VARCHAR" property="loseWeigh" />
+    <result column="is_auto" jdbcType="TINYINT" property="isAuto" />
+    <result column="car_container_id" jdbcType="INTEGER" property="carContainerId" />
+    <result column="car_length_id" jdbcType="INTEGER" property="carLengthId" />
+    <result column="memo" jdbcType="VARCHAR" property="memo" />
+      <result column="range" jdbcType="INTEGER" property="range" />
+      <result column="groupId" jdbcType="VARCHAR" property="groupId" />
+    <result column="is_publish" jdbcType="TINYINT" property="isPublish" />
+    <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+
+    <select id="queryUserTempaleList" resultType="com.fssoft.freight.api.result.modules.userTempale.UserTempaleResult">
+        SELECT
+            dut.id as id, dut.user_id as userId, dut.load_user_area_id as loadUserAreaId, dut.unload_user_area_id as unloadUserAreaId, dut.goods_load_time as goodsLoadTime, dut.goods_publish_type as goodsPublishType, dut.goods_type_id as goodsTypeId, dut.goods_weight as goodsWeight, dut.goods_price as goodsPrice, dut.lose_weigh as loseWeigh, dut.is_auto as isAuto, dut.car_container_id as carContainerId, dut.car_length_id as carLengthId, dut.memo as memo, dut.is_publish as isPublish, dut.is_delete as isDelete, dut.create_time as createTime, dut.update_time as updateTime
+        FROM dz_user_tempale as dut
+        WHERE 1=1
+            <if test="updateTimeRangeStart != null and updateTimeRangeStart != ''">
+                AND dut.update_time >= #{updateTimeRangeStart}
+            </if>
+            <if test="updateTimeRangeEnd != null and updateTimeRangeEnd != ''">
+                AND #{updateTimeRangeEnd} >= dut.update_time
+            </if>
+            AND dut.is_delete = 0
+        <if test="orderSql != null and orderSql != ''">
+            ORDER BY dut.${orderSql}
+        </if>
+    </select>
+
+    <select id="deleteUserTempaleListByIdList" >
+        update dz_user_tempale set is_delete = 1 where id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <insert id="saveUserTempales">
+    INSERT dz_user_tempale (
+    user_id,
+    load_user_area_id,
+    unload_user_area_id,
+    goods_publish_type,
+    goods_type_id,
+    goods_weight,
+    goods_price,
+    lose_weigh,
+    is_auto,
+    goods_load_time,
+    car_container_id,
+    car_length_id,
+    memo,
+    is_publish,
+    is_delete,
+    create_time,
+    update_time,
+    receive_userId,
+    map_x,
+    map_y,
+    range,
+    groupId,
+    goods_real_price,
+    goods_weight_unit
+    )
+    VALUES
+    (
+    #{userId},#{loadUserAreaId},#{unloadUserAreaId},#{goodsPublishType},#{goodsTypeId},#{goodsWeight},#{goodsPrice},#{loseWeigh},#{isAuto},#{goodsLoadTime},#{carContainerId},#{carLengthId},#{memo},#{isPublish},#{isDelete},#{createTime},#{updateTime},#{receiveUserId},#{mapX},#{mapY},#{range},#{groupId},#{goodsRealPrice},#{goodsWeightUnit})
+   </insert>
+     <update id="deleteUserTempale" >
+        update dz_user_tempale set is_delete = 1 where id = #{id}
+    </update>
+</mapper>

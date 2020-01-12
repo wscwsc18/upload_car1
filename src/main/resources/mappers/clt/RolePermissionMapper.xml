@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.RolePermissionMapper">
+  <resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.RolePermission">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="role_id" jdbcType="INTEGER" property="roleId" />
+    <result column="permission_id" jdbcType="INTEGER" property="permissionId" />
+  </resultMap>
+
+    <select id="queryRolePermissionList" resultType="com.fssoft.freight.api.result.modules.rolePermission.RolePermissionResult">
+        SELECT
+            wrp.`id` as id, wrp.`role_id` as roleId, wrp.`permission_id` as permissionId
+        FROM `wt_role_permission` as wrp
+        WHERE 1=1
+            AND wrp.is_delete = 0
+        <if test="orderSql != null and orderSql != ''">
+            ORDER BY wrp.${orderSql}
+        </if>
+    </select>
+
+    <select id="deleteRolePermissionListByIdList" >
+        update `wt_role_permission` set is_delete = 1 where id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+</mapper>

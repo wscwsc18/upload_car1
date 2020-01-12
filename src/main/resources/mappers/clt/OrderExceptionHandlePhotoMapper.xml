@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.OrderExceptionHandlePhotoMapper">
+  <resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.OrderExceptionHandlePhoto">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <result column="exception_handle_id" jdbcType="INTEGER" property="exceptionHandleId" />
+    <result column="photo" jdbcType="VARCHAR" property="photo" />
+  </resultMap>
+
+    <select id="queryOrderExceptionHandlePhotoList" resultType="com.fssoft.freight.api.result.modules.orderExceptionHandlePhoto.OrderExceptionHandlePhotoResult">
+        SELECT
+            doehp.exception_handle_id as exceptionHandleId, doehp.photo as photo
+        FROM dz_order_exception_handle_photo as doehp
+        WHERE 1=1
+            AND doehp.is_delete = 0
+        <if test="orderSql != null and orderSql != ''">
+            ORDER BY doehp.${orderSql}
+        </if>
+    </select>
+
+    <select id="findPhotos" resultType="java.lang.String">
+        SELECT photo FROM dz_order_exception_handle_photo WHERE exception_handle_id = #{id}
+    </select>
+
+
+
+    <select id="deleteOrderExceptionHandlePhotoListByIdList" >
+        update dz_order_exception_handle_photo set is_delete = 1 where id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+</mapper>

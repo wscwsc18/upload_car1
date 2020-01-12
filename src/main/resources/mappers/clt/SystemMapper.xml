@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.SystemMapper">
+  <resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.System">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+    <result column="version" jdbcType="INTEGER" property="version" />
+      <result column="is_auto" jdbcType="VARCHAR" property="isAuto" />
+      <result column="url" jdbcType="VARCHAR" property="url" />
+    <result column="is_publish" jdbcType="TINYINT" property="isPublish" />
+    <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+
+    <select id="querySystemList" resultType="com.fssoft.freight.api.result.modules.system.SystemResult">
+        SELECT
+            ds.id as id,
+        ds.title as title,
+        ds.content as content,
+        ds.version as version,
+        ds.url as url,
+        ds.is_auto as isAuto
+
+
+        FROM dz_system as ds
+        WHERE 1=1
+            <if test="title != null and title != ''">
+                AND ds.title like concat('%', #{title}, '%')
+            </if>
+            <if test="updateTimeRangeStart != null and updateTimeRangeStart != ''">
+                AND ds.update_time >= #{updateTimeRangeStart}
+            </if>
+            <if test="updateTimeRangeEnd != null and updateTimeRangeEnd != ''">
+                AND #{updateTimeRangeEnd} >= ds.update_time
+            </if>
+            AND ds.is_delete = 0
+        <if test="orderSql != null and orderSql != ''">
+            ORDER BY ds.${orderSql}
+        </if>
+        <if test="orderSql == null or orderSql == ''">
+            ORDER BY ds.create_time desc
+        </if>
+    </select>
+
+
+    <select id="findSystemLast" resultType="com.fssoft.freight.api.result.modules.system.SystemResult">
+        SELECT
+        ds.id as id,
+        ds.title as title,
+        ds.content as content,
+        ds.version as version,
+        ds.url as url,
+        ds.is_auto as isAuto
+
+        FROM dz_system as ds
+        WHERE 1=1 AND ds.is_delete = 0
+        ORDER BY ds.create_time desc limit 1
+
+    </select>
+
+</mapper>

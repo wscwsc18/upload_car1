@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.OrderCancelMapper">
+  <resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.OrderCancel">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="order_id" jdbcType="INTEGER" property="orderId" />
+    <result column="reason" jdbcType="VARCHAR" property="reason" />
+    <result column="status" jdbcType="TINYINT" property="status" />
+    <result column="is_publish" jdbcType="TINYINT" property="isPublish" />
+    <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+
+    <select id="queryOrderCancelList" resultType="com.fssoft.freight.api.result.modules.orderCancel.OrderCancelResult">
+        SELECT
+            doc.id as id, doc.order_id as orderId, doc.reason as reason, doc.status as status, doc.is_publish as isPublish, doc.is_delete as isDelete, doc.create_time as createTime, doc.update_time as updateTime
+        FROM dz_order_cancel as doc
+        WHERE 1=1
+            <if test="updateTimeRangeStart != null and updateTimeRangeStart != ''">
+                AND doc.update_time >= #{updateTimeRangeStart}
+            </if>
+            <if test="updateTimeRangeEnd != null and updateTimeRangeEnd != ''">
+                AND #{updateTimeRangeEnd} >= doc.update_time
+            </if>
+            AND doc.is_delete = 0
+        <if test="orderSql != null and orderSql != ''">
+            ORDER BY doc.${orderSql}
+        </if>
+    </select>
+
+    <select id="deleteOrderCancelListByIdList" >
+        update dz_order_cancel set is_delete = 1 where id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="findCancelReason" resultType="com.fssoft.freight.api.result.api.result.order.ApiOrderCancleResult">
+        SELECT
+        doc.reason as reason,
+        doc.create_time as createTime
+        FROM dz_order_cancel as doc
+        WHERE doc.order_id = #{orderId}
+    </select>
+
+
+
+    <update id="updateOrderCanaelByOrderId">
+        UPDATE dz_order_cancel SET status = #{status},update_time = now() WHERE order_id = #{orderId}
+    </update>
+</mapper>

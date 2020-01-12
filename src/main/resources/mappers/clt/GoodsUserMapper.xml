@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.GoodsUserMapper">
+  <resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.GoodsUser">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="goods_id" jdbcType="INTEGER" property="goodsId" />
+    <result column="goods_user_id" jdbcType="INTEGER" property="goodsUserId" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+      <result column="user_car_id" jdbcType="INTEGER" property="userCarId" />
+    <result column="status" jdbcType="TINYINT" property="status" />
+    <result column="is_publish" jdbcType="TINYINT" property="isPublish" />
+    <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+
+
+    <select id="findGoodsUserId" resultType="java.lang.Integer">
+        SELECT
+		 dgu.user_id 
+        FROM dz_goods_user as dgu
+        WHERE 1=1 AND dgu.is_delete = 0 AND dgu.is_publish = 1 
+            AND dgu.goods_id = #{goodsId}
+    </select>
+    
+    <select id="findGoodsUser" resultType="com.fssoft.freight.dao.persistence.entity.GoodsUser">
+        SELECT
+        dgu.id as id, dgu.goods_id as goodsId, dgu.goods_user_id as goodsUserId, dgu.user_id as userId, dgu.user_car_id as userCarId,dgu.status as status, dgu.is_publish as isPublish,
+        dgu.is_delete as isDelete, dgu.create_time as createTime, dgu.update_time as updateTime
+        FROM dz_goods_user as dgu
+        WHERE 1=1 AND dgu.is_delete = 0 AND dgu.is_publish = 1 AND dgu.user_id = #{userId}
+        <if test="goodsId != null and goodsId != ''">
+            AND dgu.goods_id = #{goodsId}
+        </if>
+
+    </select>
+
+    <select id="updateGoodsUserStatusById">
+        UPDATE dz_goods_user SET `status` = 0 ,update_time = NOW() WHERE id IN
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="deleteById">
+        UPDATE dz_goods_user SET `is_delete` = 1 ,update_time = NOW() WHERE id = #{id}
+    </select>
+</mapper>

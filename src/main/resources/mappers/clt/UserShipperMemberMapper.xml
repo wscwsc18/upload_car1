@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.UserShipperMemberMapper">
+  <resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.UserShipperMember">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="member_user_id" jdbcType="INTEGER" property="memberUserId" />
+    <result column="type" jdbcType="TINYINT" property="type" />
+    <result column="is_publish" jdbcType="TINYINT" property="isPublish" />
+    <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="contacts_name" jdbcType="TIMESTAMP" property="contactsName" />
+    <result column="contacts_phone" jdbcType="TIMESTAMP" property="contactsPhone" />
+  </resultMap>
+
+    <select id="queryUserShipperMemberList" resultType="com.fssoft.freight.api.result.modules.userShipperMember.UserShipperMemberResult">
+        SELECT
+            dusm.id as id, dusm.user_id as userId, dusm.member_user_id as memberUserId, dusm.type as type, dusm.is_publish as isPublish, dusm.is_delete as isDelete, dusm.create_time as createTime, dusm.update_time as updateTime
+        FROM dz_user_shipper_member as dusm
+        WHERE 1=1
+            <if test="updateTimeRangeStart != null and updateTimeRangeStart != ''">
+                AND dusm.update_time >= #{updateTimeRangeStart}
+            </if>
+            <if test="updateTimeRangeEnd != null and updateTimeRangeEnd != ''">
+                AND #{updateTimeRangeEnd} >= dusm.update_time
+            </if>
+            AND dusm.is_delete = 0
+        <if test="orderSql != null and orderSql != ''">
+            ORDER BY dusm.${orderSql}
+        </if>
+    </select>
+
+    <select id="deleteUserShipperMemberListByIdList" >
+        update dz_user_shipper_member set is_delete = 1 where id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <update id="updateUserShipperMember" parameterType="com.fssoft.freight.api.io.modules.userShipperMember.UserShipperMemberDetailIO">
+            UPDATE dz_user_shipper_member
+            <set>
+                <if test="type != null">
+                    dz_user_shipper_member.type = #{type},
+                </if>
+                dz_user_shipper_member.update_time = NOW()
+            </set>
+            WHERE dz_user_shipper_member.user_id = #{userId} AND dz_user_shipper_member.member_user_id = #{memberUserId}
+    </update>
+
+    <update id="updateUserShipperMemberNameAndPhone" parameterType="com.fssoft.freight.api.io.modules.userShipperMember.UserShipperMemberDetailIO">
+
+            UPDATE dz_user AS du,dz_user_shipper AS dus
+            <set>
+                <if test="name != null and name != ''">
+                    dus.contacts_name = #{name},
+                </if>
+                <if test="phone != null and phone != ''">
+                    du.phone = #{phone},
+                </if>
+                du.update_time = NOW(),
+                dus.update_time = NOW()
+            </set>
+            WHERE
+            du.id = dus.user_id AND du.id = #{memberUserId}
+    </update>
+    
+    <delete id="deleteUserShipperMember">
+        DELETE FROM dz_user_shipper_member WHERE id = #{id}
+    </delete>
+
+    <insert id="saveUserShipperMember" parameterType="com.fssoft.freight.api.io.modules.userShipperMember.UserShipperMemberDetailIO">
+        INSERT INTO dz_user_shipper_member(user_id,member_user_id,type,is_publish,is_delete,create_time,update_time)
+        VALUES
+            (#{userId},#{memberUserId},#{type},1,0,now(),now())
+
+    </insert>
+
+    <select id="selectShipperMemberListByUserId" resultType="com.fssoft.freight.api.result.modules.userShipperMember.UserShipperMemberResult">
+          SELECT
+            dus.contacts_name contactsName,
+            du.phone contactsPhone,
+            d.type
+        FROM
+            dz_user_shipper_member d
+        LEFT JOIN dz_user_shipper dus ON d.member_user_id = dus.user_id
+        LEFT JOIN dz_user du on du.id = dus.user_id
+        WHERE
+            d.user_id = (SELECT user_id FROM dz_user_shipper_member WHERE member_user_id = #{userId})
+    </select>
+
+    <select id="findUserByPhoneAndType" resultType="com.fssoft.freight.dao.persistence.entity.User">
+        SELECT id,type FROM dz_user WHERE phone = #{phone} and type=#{type}
+    </select>
+    
+    <select id="findCountByUserIdAndMemberUserId" resultType="java.lang.Integer">
+        select count(id) FROM dz_user_shipper_member WHERE user_id = #{userId} AND member_user_id = #{memberUserId} AND is_delete = 0
+    </select>
+
+    <select id="findCountByUserId" resultType="java.lang.Integer">
+        SELECT count(id) FROM dz_user_shipper_member WHERE member_user_id = #{userId} AND is_delete = 0
+    </select>
+
+
+    <select id="findUserIdByMemberUserId" resultType="java.lang.Integer">
+        select user_id FROM dz_user_shipper_member WHERE member_user_id = #{memberUserId}
+        <if test="type != null and type != 0">
+            and type = #{type}
+        </if>
+    </select>
+
+    <select id="findGoodsRoleByUserId" resultType="java.lang.Integer">
+        select user_id FROM dz_user_shipper_member WHERE member_user_id = #{memberUserId}
+        and type in (1, 3, 4)
+    </select>
+
+    <select id="findUserRoleByUserId" resultType="java.lang.Integer">
+        select user_id FROM dz_user_shipper_member WHERE member_user_id = #{memberUserId}
+        and type in (0, 3, 4)
+    </select>
+
+    <select id="findGoodsSendUserByUserId" resultType="java.lang.Integer">
+        select member_user_id FROM dz_user_shipper_member WHERE user_id in
+         (SELECT user_id FROM dz_user_shipper_member WHERE member_user_id = #{userId} and type in (0,1,3,4)) and type in (0,1, 3, 4)
+    </select>
+
+    <select id="findListByUserId" resultType="java.lang.Integer">
+        select member_user_id FROM dz_user_shipper_member WHERE user_id in
+        (SELECT user_id FROM dz_user_shipper_member WHERE member_user_id = #{userId})
+    </select>
+
+</mapper>

@@ -2,7 +2,12 @@ package com.cargo.upload_car.entity;
 
 import java.util.Date;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+/*
+信息源的标的字段属性属性
+*/
 public class CarConfig extends BaseEntity {
 
     private static final long serialVersionUID = 6916880876093508997L;
@@ -44,6 +49,16 @@ public class CarConfig extends BaseEntity {
     private String contractCode;
     private Integer status;
     private Date Updatetime;
+
+    public int getId2() {
+        return Id2;
+    }
+
+    public void setId2(int id2) {
+        Id2 = id2;
+    }
+
+    private int  Id2=-1;
 
     public Integer getId() {
         return Id;
@@ -130,7 +145,21 @@ public class CarConfig extends BaseEntity {
     }
 
     public void setPhoneNumber(String phoneNumber) {
+
+        //String str = "123abc你好efc";
+
+        String reg = "[\u4e00-\u9fa5]";
+
+        Pattern pat = Pattern.compile(reg);
+
+        Matcher mat=pat.matcher(phoneNumber);
+
+        String repickStr = mat.replaceAll("");
+
+        //System.out.println("去中文后:"+repickStr);
+
         PhoneNumber = phoneNumber;
+
     }
 
     public Integer getUserNumber() {

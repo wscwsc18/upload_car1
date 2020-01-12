@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.UserShipperMapper">
+    <resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.UserShipper">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="user_id" jdbcType="INTEGER" property="userId"/>
+        <result column="shipper_type" jdbcType="INTEGER" property="shipperType"/>
+        <result column="photo" jdbcType="VARCHAR" property="photo"/>
+        <result column="company_name" jdbcType="VARCHAR" property="companyName"/>
+        <result column="contacts_name" jdbcType="VARCHAR" property="contactsName"/>
+        <result column="contacts_phone" jdbcType="VARCHAR" property="contactsPhone"/>
+        <result column="business_license_card" jdbcType="VARCHAR" property="businessLicenseCard"/>
+        <result column="corporation_name" jdbcType="VARCHAR" property="corporationName"/>
+        <result column="corporation_id_card" jdbcType="VARCHAR" property="corporationIdCard"/>
+        <result column="id_card_front" jdbcType="VARCHAR" property="idCardFront"/>
+        <result column="id_card_back" jdbcType="VARCHAR" property="idCardBack"/>
+        <result column="business_licence" jdbcType="VARCHAR" property="businessLicence"/>
+        <result column="other" jdbcType="VARCHAR" property="other"/>
+        <result column="balance" jdbcType="DECIMAL" property="balance"/>
+        <result column="freeze_money" jdbcType="DECIMAL" property="freezeMoney"/>
+        <result column="level" jdbcType="TINYINT" property="level"/>
+        <result column="company_info" jdbcType="VARCHAR" property="companyInfo"/>
+        <result column="company_bussiness" jdbcType="VARCHAR" property="companyBussiness"/>
+        <result column="company_area_id" jdbcType="INTEGER" property="companyAreaId"/>
+        <result column="company_address" jdbcType="VARCHAR" property="companyAddress"/>
+        <result column="bank_name" jdbcType="VARCHAR" property="bankName"/>
+        <result column="bank_no" jdbcType="VARCHAR" property="bankNo"/>
+        <result column="is_publish" jdbcType="TINYINT" property="isPublish"/>
+        <result column="is_delete" jdbcType="TINYINT" property="isDelete"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="invite_code" jdbcType="VARCHAR" property="inviteCode"/>
+    </resultMap>
+
+    <select id="queryUserShipperList" resultType="com.fssoft.freight.api.result.modules.userShipper.UserShipperResult">
+        SELECT
+        dus.id AS id,
+        du.id AS userId,
+        dus.contacts_name as contactsName,
+        dus.shipper_type AS shipperType,
+        duss.company_name AS companyName,
+        du.phone AS contactsPhone,
+        du. STATUS AS STATUS,
+        du.create_time AS createTime,
+        du.update_time AS updateTime,
+        du.is_publish AS isPublish,
+        dus.freight_freeze_rate AS freightFreezeRate
+        FROM
+        dz_user_shipper dus
+        LEFT JOIN dz_user du ON du.id = dus.user_id
+        LEFT JOIN dz_user_shipper_member dusm ON du.id = dusm.member_user_id
+        LEFT JOIN dz_user_shipper duss ON duss.user_id = dusm.user_id
+        WHERE 1=1
+        <if test="createTimeRangeStart != null and createTimeRangeStart != ''">
+            AND du.update_time >= #{createTimeRangeStart}
+        </if>
+        <if test="createTimeRangeEnd != null and createTimeRangeEnd != ''">
+            AND #{createTimeRangeEnd} >= du.update_time
+        </if>
+        <if test="contactsPhone != null and contactsPhone != ''">
+            AND du.phone like concat('%', #{contactsPhone}, '%')
+        </if>
+        <if test="companyName != null and companyName != ''">
+            AND (dus.company_name like concat('%', #{companyName}, '%') or dus.contacts_name like concat('%',
+            #{companyName}, '%'))
+        </if>
+        <if test="status != null and status != '' || status == 0">
+            <if test="status == 1">
+                AND du.status = 1
+            </if>
+            <if test="status == 0">
+                AND du.status =0
+            </if>
+            <if test="status == 2">
+                AND du.status =2
+            </if>
+        </if>
+        <if test="isPublish != null and isPublish != '' || isPublish == 0">
+            AND du.is_publish = #{isPublish}
+        </if>
+        AND du.is_delete = 0 and du.type = 0
+        AND du.status != 3
+        <if test="orderSql != null and orderSql != ''">
+            ORDER BY dus.${orderSql}
+        </if>
+        <if test="orderSql == null or orderSql == ''">
+            ORDER BY du.update_time desc
+        </if>
+    </select>
+
+    <select id="findByUserId" resultMap="BaseResultMap">
+        SELECT * FROM dz_user_shipper WHERE user_id = #{userId} and is_delete=0 and is_publish=1
+    </select>
+
+
+    <select id="findByCompanyCode" resultMap="BaseResultMap">
+    SELECT * FROM dz_user_shipper AS dus
+    LEFT JOIN dz_user AS du ON du.id = dus.user_id
+    WHERE 1=1
+    AND ( (dus.business_license_card = #{companyCode} AND dus.shipper_type = 1) or ( dus.corporation_id_card=#{companyCode} AND dus.shipper_type = 2))
+    AND dus.is_delete=0 AND dus.is_publish=1 AND du.`status` = 1
+    </select>
+
+    <select id="findReivewUserInfo" resultMap="reivewUserInfo">
+         SELECT dus.shipper_type,
+          dus.photo, dus.company_name ,dus.contacts_name,dus.contacts_phone,
+           dus.level , dus.company_info, dus.company_bussiness,
+           dus.company_address,
+            dud.username, dur.`level` as reviewLevel,
+             dur.create_time, dud.photo as reviewPhoto,
+             dur.content,
+             CONCAT(dr.region_name,daa.region_name,da.region_name) full_name
+        FROM dz_user_shipper as dus
+        LEFT JOIN dz_region as da on  dus.company_area_id = da.id
+        LEFT JOIN dz_region as daa on  da.parent_id = daa.id
+        LEFT JOIN dz_region as dr on  da.province_id = dr.id
+        LEFT JOIN dz_user_review dur on dur.review_user_id = dus.user_id
+       LEFT JOIN dz_user_driver dud on dud.user_id = dur.user_id
+        WHERE 1=1
+        AND dus.is_delete = 0 AND  dus.is_publish = 1  AND dus.user_id = #{id}
+    </select>
+
+    <resultMap id="reivewUserInfo" type="com.fssoft.freight.api.result.api.result.review.ApiReviewUserResult">
+        <result column="shipper_type" jdbcType="INTEGER" property="shipperType"/>
+        <result column="photo" jdbcType="VARCHAR" property="photo"/>
+        <result column="company_name" jdbcType="VARCHAR" property="companyName"/>
+        <result column="level" jdbcType="TINYINT" property="level"/>
+        <result column="company_info" jdbcType="VARCHAR" property="companyInfo"/>
+        <result column="company_bussiness" jdbcType="VARCHAR" property="companyBussiness"/>
+        <result column="company_address" jdbcType="VARCHAR" property="companyAddress"/>
+        <result column="full_name" jdbcType="VARCHAR" property="companyCity"/>
+        <result column="contacts_name" jdbcType="VARCHAR" property="contactsName"/>
+        <result column="contacts_phone" jdbcType="VARCHAR" property="contactsPhone"/>
+        <collection property="reviewList" ofType="com.fssoft.freight.api.result.api.result.review.ApiReviewResult">
+            <result column="username" jdbcType="VARCHAR" property="username"/>
+            <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+            <result column="reviewPhoto" jdbcType="VARCHAR" property="photo"/>
+            <result column="content" jdbcType="VARCHAR" property="content"/>
+            <result column="reviewLevel" jdbcType="VARCHAR" property="level"/>
+        </collection>
+    </resultMap>
+
+
+    <select id="deleteUserShipperListByIdList">
+        update dz_user_shipper set is_delete = 1 where id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <update id="updateUserShipperById"
+            parameterType="com.fssoft.freight.api.io.modules.userShipper.UserShipperDetailIO">
+        UPDATE dz_user_shipper
+        <set>
+            <if test="companyName != null and companyName != ''">company_name=#{companyName},</if>
+            <if test="shipperType != null and shipperType != 0">shipper_type=#{shipperType},</if>
+            <if test="contactsName != null and contactsName != ''">contacts_name=#{contactsName},</if>
+            <if test="contactsPhone != null and contactsPhone != ''">contacts_phone=#{contactsPhone},</if>
+            <if test="businessLicenseCard != null and businessLicenseCard != ''">
+                business_license_card=#{businessLicenseCard},
+            </if>
+            <if test="corporationName != null and corporationName != ''">corporation_name=#{corporationName},</if>
+            <if test="corporationIdCard != null and corporationIdCard != ''">corporation_id_card=#{corporationIdCard},
+            </if>
+            <if test="companyAreaId != null and companyAreaId != ''">company_area_id=#{companyAreaId},</if>
+            <if test="companyAddress != null and companyAddress != ''">company_address=#{companyAddress},</if>
+            <if test="bankName != null and bankName != ''">bank_name=#{bankName},</if>
+            <if test="bankNo != null and bankNo != ''">bank_no=#{bankNo},</if>
+            <if test="idCardFront != null and idCardFront != ''">id_card_front=#{idCardFront},</if>
+            <if test="idCardBack != null and idCardBack != ''">id_card_back=#{idCardBack},</if>
+            <if test="businessLicence != null and businessLicence != ''">business_licence=#{businessLicence},</if>
+            <if test="other != null and other != ''">other=#{other},</if>
+            update_time = now()
+        </set>
+        where id=#{id}
+    </update>
+
+    <select id="findUserShipperList" resultMap="UserShipperResultList">
+        SELECT
+            a.id,a.user_id,a.shipper_type,a.photo,a.company_name,
+            dus.contacts_name,
+            du.phone  as contacts_phone,
+            a.business_license_card,a.corporation_name,a.corporation_id_card,a.id_card_front,
+            a.id_card_back,a.corporation_id_card,a.id_card_front,a.id_card_back,a.business_licence,a.other,a.balance,a.freeze_money,a.level,a.company_info,
+        a.company_bussiness,a.company_area_id,a.company_address,a.bank_name,a.bank_no,a.is_publish,a.is_delete,a.update_time,b.id as cid,
+        b.user_id as usersId, b.member_user_id, b.type, b.is_publish, b.update_time
+        FROM
+            dz_user_shipper a
+        LEFT JOIN dz_user_shipper_member b ON a.user_id = b.user_id AND b.is_delete = 0
+        LEFT JOIN dz_user_shipper dus ON dus.user_id = b.member_user_id
+          LEFT JOIN dz_user du ON du.id = dus.user_id
+        WHERE
+            a.id = #{id}  AND a.is_delete = 0
+    </select>
+
+    <resultMap type="com.fssoft.freight.api.result.modules.userShipper.UserShipperResult" id="UserShipperResultList">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="user_id" jdbcType="INTEGER" property="userId"/>
+        <result column="shipper_type" jdbcType="INTEGER" property="shipperType"/>
+        <result column="photo" jdbcType="VARCHAR" property="photo"/>
+        <result column="company_name" jdbcType="VARCHAR" property="companyName"/>
+        <result column="contacts_name" jdbcType="VARCHAR" property="contactsName"/>
+        <result column="contacts_phone" jdbcType="VARCHAR" property="contactsPhone"/>
+        <result column="business_license_card" jdbcType="VARCHAR" property="businessLicenseCard"/>
+        <result column="corporation_name" jdbcType="VARCHAR" property="corporationName"/>
+        <result column="corporation_id_card" jdbcType="VARCHAR" property="corporationIdCard"/>
+        <result column="id_card_front" jdbcType="VARCHAR" property="idCardFront"/>
+        <result column="id_card_back" jdbcType="VARCHAR" property="idCardBack"/>
+        <result column="business_licence" jdbcType="VARCHAR" property="businessLicence"/>
+        <result column="other" jdbcType="VARCHAR" property="other"/>
+        <result column="balance" jdbcType="DECIMAL" property="balance"/>
+        <result column="freeze_money" jdbcType="DECIMAL" property="freezeMoney"/>
+        <result column="level" jdbcType="TINYINT" property="level"/>
+        <result column="company_info" jdbcType="VARCHAR" property="companyInfo"/>
+        <result column="company_bussiness" jdbcType="VARCHAR" property="companyBussiness"/>
+        <result column="company_area_id" jdbcType="INTEGER" property="companyAreaId"/>
+        <result column="company_address" jdbcType="VARCHAR" property="companyAddress"/>
+        <result column="bank_name" jdbcType="VARCHAR" property="bankName"/>
+        <result column="bank_no" jdbcType="VARCHAR" property="bankNo"/>
+        <result column="is_publish" jdbcType="TINYINT" property="isPublish"/>
+        <result column="is_delete" jdbcType="TINYINT" property="isDelete"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <collection property="userShipperMemberResults"
+                    ofType="com.fssoft.freight.api.result.modules.userShipperMember.UserShipperMemberResult">
+            <id column="cid" jdbcType="INTEGER" property="id"/>
+            <result column="usersId" jdbcType="INTEGER" property="userId"/>
+            <result column="member_user_id" jdbcType="INTEGER" property="memberUserId"/>
+            <result column="contacts_name" property="contactsName"/>
+            <result column="contacts_phone" property="contactsPhone"/>
+            <result column="type" jdbcType="TINYINT" property="type"/>
+            <result column="is_publish" jdbcType="TINYINT" property="isPublish"/>
+            <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        </collection>
+    </resultMap>
+
+    <select id="findUserShipperMember"
+            resultType="com.fssoft.freight.api.result.modules.userShipperMember.UserShipperMemberResult">
+            SELECT
+                dusm.id,
+                dusm.user_id,
+                dusm.member_user_id,
+                dusm.type,
+                dusm.is_publish,
+                dusm.update_time,
+                (CASE WHEN du.type = 0 THEN dus.contacts_name WHEN du.type = 1 THEN dud.username END) AS contactsName,
+                du.phone AS contactsPhone
+            FROM
+              dz_user_shipper_member dusm
+            LEFT JOIN dz_user du ON dusm.member_user_id = du.id
+            LEFT JOIN dz_user_driver dud ON dusm.member_user_id = dud.user_id
+            LEFT JOIN dz_user_shipper dus ON dusm.member_user_id = dus.user_id
+            WHERE
+              dusm.user_id = #{id}
+            AND dusm.is_publish = 1
+            AND dusm.is_delete = 0 ORDER BY dusm.update_time DESC
+    </select>
+
+    <update id="userShipperProhibit">
+        UPDATE dz_user SET is_publish = CASE WHEN is_publish = 0 THEN 1 WHEN is_publish = 1 then 0 END,update_time = now() WHERE id = #{id}
+    </update>
+
+    <select id="findUserShipperResultByUserId"
+            resultType="com.fssoft.freight.api.result.api.result.shipper.ApiShipperResult">
+        SELECT
+	a.id,a.user_id,a.photo,a.company_name,a.contacts_name,a.contacts_phone,a.level,a.company_info,a.company_bussiness,a.company_area_id,a.company_address,a.user_id,b.id
+    FROM
+	    dz_user_shipper a
+    LEFT JOIN dz_region b ON a.user_id = b.id
+    WHERE
+	    a.user_id =  (SELECT user_id FROM dz_user_shipper_member WHERE member_user_id = #{id} ) or a.user_id=#{id}
+    </select>
+    <update id="updateUserShipperadd">
+                UPDATE dz_user_shipper  SET
+                photo=#{photo},
+                contacts_name=#{contactsName},
+                company_name=#{companyName},
+                contacts_phone=#{contactsPhone},
+                level=#{level},
+                company_info=#{companyInfo},
+                company_bussiness=#{companyBussiness},
+                company_area_id=#{companyAreaId},
+                company_address=#{companyAddress},
+                update_time = now() WHERE user_id= #{userId}
+    </update>
+
+    <select id="findUserShipper" resultType="com.fssoft.freight.api.io.api.shipper.UserShipperDetailVO">
+        SELECT
+            company_name,
+            shipper_type,
+            business_license_card,
+            corporation_name,
+            corporation_id_card,
+            id_card_front,
+            id_card_back,
+            business_licence,
+            other
+        FROM
+	        dz_user_shipper
+        WHERE
+	        user_id = #{userId}
+    </select>
+
+    <select id="findUserShipperListByPhone"
+            resultType="com.fssoft.freight.api.result.api.result.shipper.ApiShipperResult">
+         SELECT
+	a.id,a.user_id,a.photo,a.company_name,a.contacts_name,a.contacts_phone,a.level,a.company_info,a.company_bussiness,a.company_area_id,a.company_address
+    FROM
+            dz_user_shipper a,
+            dz_user b
+        WHERE
+            a.user_id = b.id
+            AND a.is_publish = 1 AND a.is_delete = 0
+            AND b.is_publish = 1 AND b.is_delete = 0
+            AND b.phone=#{phone} and b.type=0
+    </select>
+
+
+    <update id="updateUserStatus">
+        UPDATE dz_user SET status=1, update_time = NOW() WHERE id = #{userId}
+    </update>
+    <update id="updateFreezeRate">
+        UPDATE dz_user_shipper SET freight_freeze_rate=#{freezeRate}, update_time = NOW() WHERE id = #{shipperId}
+    </update>
+    <update id="updateApprovalUserStatus">
+        UPDATE dz_user SET status=#{status}, update_time = NOW() WHERE id = #{userId}
+    </update>
+    <update id="updateUserPhoto">
+        UPDATE dz_user_shipper SET photo = #{photo},update_time = NOW() WHERE user_id = #{userId}
+    </update>
+
+    <update id="updateBalanceAndFreezeMoney">
+        UPDATE dz_user_shipper SET
+    </update>
+    
+    	<select id="findUserShipperNameListByIds" resultType="java.lang.String">
+	 SELECT
+            (case when a.shipper_type=1 then a.company_name when a.shipper_type=2 then a.contacts_name end) as username
+        FROM
+            dz_user_shipper a
+        WHERE
+            a.is_publish = 1 AND a.is_delete = 0
+            AND a.user_id in
+            <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+	</select>
+</mapper>

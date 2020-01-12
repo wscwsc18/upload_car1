@@ -20,9 +20,14 @@ public class Upload {
         List<Car> cars = ifiandID.setConfig();
         return cars;
     }
-
     @RequestMapping("delete")
     public void deleteByCid(String cid) {
         ifiandID.deleteCarByCid(Integer.valueOf(cid));
+    }
+
+    @RequestMapping("updata")
+    public String updata(){
+        ifiandID.sendCars(ifiandID.setConfig());
+        return "ok";
     }
 }

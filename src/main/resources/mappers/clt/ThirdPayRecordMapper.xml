@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.ThirdPayRecordMapper">
+ <resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.ThirdPayRecord">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="channelNo" jdbcType="VARCHAR" property="channelNo" />
+    <result column="appID" jdbcType="VARCHAR" property="appID" />
+    <result column="industryCode" jdbcType="INTEGER" property="industryCode" />
+      <result column="orderSubject" jdbcType="VARCHAR" property="orderSubject" />
+      <result column="outTradeNo" jdbcType="VARCHAR" property="outTradeNo" />
+    <result column="orderCode" jdbcType="VARCHAR" property="orderCode" />
+    <result column="payerUserId" jdbcType="INTEGER" property="payerUserId" />
+    <result column="payerCode" jdbcType="VARCHAR" property="payerCode" />
+    <result column="payeeUserId" jdbcType="INTEGER" property="payeeUserId" />
+    <result column="payeeCode" jdbcType="VARCHAR" property="payeeCode" />
+    <result column="orderAmount" jdbcType="DECIMAL" property="orderAmount" />
+    <result column="orderPayType" jdbcType="INTEGER" property="orderPayType" />
+    <result column="payAmount" jdbcType="DECIMAL" property="payAmount" />
+    <result column="platformAmount" jdbcType="DECIMAL" property="platformAmount" />
+    <result column="platformScale" jdbcType="DECIMAL" property="platformScale" />
+    <result column="notifyUrl" jdbcType="VARCHAR" property="notifyUrl" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="statusMsg" jdbcType="VARCHAR" property="statusMsg" />
+    <result column="createOn" jdbcType="TIMESTAMP" property="createOn" />
+    <result column="overOn" jdbcType="TIMESTAMP" property="overOn" />
+  </resultMap>
+  
+     <select id="selectByIo" resultMap="BaseResultMap">
+       SELECT dtp.id, dtp.channelNo, dtp.appID, dtp.industryCode, dtp.orderSubject,
+        dtp.outTradeNo, dtp.orderCode, dtp.payerUserId, dtp.payerCode, dtp.payeeUserId, 
+       dtp.payeeCode, dtp.orderAmount, dtp.orderPayType, dtp.payAmount, 
+       dtp.platformAmount, dtp.platformScale, dtp.notifyUrl, dtp.status, dtp.statusMsg, dtp.createOn, 
+       dtp.overOn 
+       from dz_third_payrecord dtp where 1=1 
+         <if test="appID != null and appID != ''">
+                AND dtp.appID = #{appID}
+            </if>
+         <if test="channelNo != null and channelNo != ''">
+                AND dtp.channelNo = #{channelNo}
+            </if>
+         <if test="industryCode != null and industryCode != ''">
+                AND dtp.industryCode = #{industryCode}
+            </if>
+         <if test="orderCode != null and orderCode != ''">
+                AND dtp.orderCode = #{orderCode}
+            </if>
+         <if test="orderPayType != null and orderPayType != ''">
+                AND dtp.orderPayType = #{orderPayType}
+            </if>
+         <if test="outTradeNo != null and outTradeNo != ''">
+                AND dtp.outTradeNo = #{outTradeNo}
+            </if>
+    </select>
+    
+  
+    <select id="queryUnRevenueList" resultType="com.fssoft.freight.api.result.modules.store.ThirdOrderPayBaseResult">
+        SELECT id, channelNo, payerUserId, payeeUserId, platformAmount
+        FROM dz_third_payrecord
+        WHERE `status` = 1
+          AND overOn &gt;= #{beginDate,jdbcType=TIMESTAMP}
+          AND overOn &lt;= #{endDate,jdbcType=TIMESTAMP};
+    </select>
+    <select id="selectCountByIo" resultType="int">
+       SELECT COUNT(*) from dz_third_payrecord dtp where 1=1 
+         <if test="appID != null and appID != ''">
+                AND dtp.appID = #{appID}
+            </if>
+         <if test="channelNo != null and channelNo != ''">
+                AND dtp.channelNo = #{channelNo}
+            </if>
+         <if test="industryCode != null and industryCode != ''">
+                AND dtp.industryCode = #{industryCode}
+            </if>
+         <if test="orderCode != null and orderCode != ''">
+                AND dtp.orderCode = #{orderCode}
+            </if>
+         <if test="orderPayType != null and orderPayType != ''">
+                AND dtp.orderPayType = #{orderPayType}
+            </if>
+         <if test="outTradeNo != null and outTradeNo != ''">
+                AND dtp.outTradeNo = #{outTradeNo}
+            </if>
+    </select>
+    
+  
+    
+</mapper>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.GasStationMapper">
+	<select id="findGasStationList" resultType="com.fssoft.freight.api.result.modules.userGas.GasStationResult">
+		SELECT 
+			ID id,
+			`NAME` `name`,
+			LINK_MAN linkMan,
+			LINK_PHONE linkPhone,
+			PRO_CODE proCode,
+			CITY_CODE cityCode,
+			DISTRICT_CODE districtCode,
+			PRO_NAME proName,
+			CITY_NAME cityName,
+			DISTRICT_NAME districtName,
+			DETAIL_AREA detailArea,
+			LAT lat,
+			LNG lng,
+			STATE state,
+			REMARK remark,
+			CREATE_DATE createDate,
+			UPDATE_DATE updateDate
+		FROM DZ_GAS_STATION
+		WHERE state=1
+		<if test="name != null and name != ''">
+			AND NAME LIKE '%${name}%'
+		</if>
+		<if test="linkMan != null and linkMan != ''">
+			AND LINK_MAN LIKE '%${linkMan}%'
+		</if>
+		<if test="linkPhone != null and linkPhone != ''">
+			AND LINK_PHONE LIKE '%${linkPhone}%'
+		</if>
+		<if test="detailArea != null and detailArea != ''">
+			AND CONCAT(PRO_NAME,CITY_NAME,DISTRICT_NAME,DETAIL_AREA) LIKE '%${detailArea}%'
+		</if>
+	</select>
+</mapper>

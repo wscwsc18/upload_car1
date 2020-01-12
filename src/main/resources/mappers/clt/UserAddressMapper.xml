@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.UserAddressMapper">
+  <resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.UserAddress">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="contacts" jdbcType="VARCHAR" property="contacts" />
+    <result column="phone" jdbcType="VARCHAR" property="phone" />
+    <result column="area_id" jdbcType="INTEGER" property="areaId" />
+    <result column="address" jdbcType="VARCHAR" property="address" />
+      <result column="full_address" jdbcType="VARCHAR" property="fullAddress" />
+    <result column="map_x" jdbcType="VARCHAR" property="mapX" />
+    <result column="map_y" jdbcType="VARCHAR" property="mapY" />
+    <result column="is_publish" jdbcType="TINYINT" property="isPublish" />
+    <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+
+    <select id="queryUserAddressList" resultType="com.fssoft.freight.api.result.modules.userAddress.UserAddressResult">
+        SELECT
+            dua.id as id, dua.user_id as userId, dua.contacts as contacts, dua.phone as phone, dua.area_id as areaId, dua.address as address, dua.full_address as fullAddress, dua.map_x as mapX,
+        dua.map_y as mapY, dua.is_publish as isPublish, dua.is_delete as isDelete, dua.create_time as createTime, dua.update_time as updateTime
+        FROM dz_user_address as dua
+        WHERE 1=1
+            <if test="updateTimeRangeStart != null and updateTimeRangeStart != ''">
+                AND dua.update_time >= #{updateTimeRangeStart}
+            </if>
+            <if test="updateTimeRangeEnd != null and updateTimeRangeEnd != ''">
+                AND #{updateTimeRangeEnd} >= dua.update_time
+            </if>
+            AND dua.is_delete = 0
+        <if test="orderSql != null and orderSql != ''">
+            ORDER BY dua.${orderSql}
+        </if>
+    </select>
+
+    <select id="deleteUserAddressListByIdList" >
+        update dz_user_address set is_delete = 1 where id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="deleteUserAddressById" >
+        update dz_user_address set is_delete = 1 where id = #{id}
+    </select>
+
+    <select id="selectUserAddressByUserId" resultType="com.fssoft.freight.api.result.modules.userAddress.UserAddressResult">
+                    SELECT
+                dua.id AS id,
+                dua.user_id AS userId,
+                dua.contacts AS contacts,
+                dua.phone AS phone,
+                dua.area_id AS areaId,
+                dua.address AS address,
+                dua.full_address AS fullAddress,
+                dua.map_x AS mapX,
+                dua.map_y AS mapY,
+                dua.is_publish AS isPublish,
+                dua.is_delete AS isDelete,
+                dua.create_time AS createTime,
+                dua.update_time AS updateTime
+            FROM
+                dz_user_address AS dua
+            WHERE
+                1 = 1
+            AND dua.is_delete = 0
+            AND dua.user_id in
+            <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+    </select>
+
+    <insert id="saveUserAddressinfo">
+        INSERT INTO dz_user_address (
+                user_id,contacts,phone,area_id,province,city,area,full_address,address,map_x,map_y,is_publish,is_delete,update_time,create_time)
+                VALUES(#{userId},#{contacts},#{phone},#{areaId},#{province},#{city},#{area},#{fullAddress},#{address},#{mapX},#{mapY},#{isPublish},#{isDelete},now(),now())
+    </insert>
+</mapper>

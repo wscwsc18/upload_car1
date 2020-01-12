@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.DictMapper">
+    <resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.Dict">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="module_key" jdbcType="VARCHAR" property="moduleKey"/>
+        <result column="group_key" jdbcType="VARCHAR" property="groupKey"/>
+        <result column="dict_key" jdbcType="VARCHAR" property="dictKey"/>
+        <result column="dict_value" jdbcType="VARCHAR" property="dictValue"/>
+        <result column="is_delete" jdbcType="TINYINT" property="isDelete"/>
+    </resultMap>
+
+    <select id="queryDictList" resultType="com.fssoft.freight.api.result.modules.dict.DictResult">
+        SELECT
+        wd.`id` as id, wd.`module_key` as moduleKey, wd.`group_key` as groupKey, wd.`group_name` as groupName,
+        wd.`dict_key` as dictKey, wd.`dict_value` as dictValue, wd.`is_delete` as isDelete
+        FROM `wt_dict` as wd
+        WHERE 1=1
+        AND wd.is_delete = 0
+        <if test="moduleKey != null and moduleKey != ''">
+            AND wd.module_key=#{moduleKey}
+        </if>
+        <if test="groupKey != null and groupKey != ''">
+            AND wd.group_key=#{groupKey}
+        </if>
+        <if test="dictKey != null and dictKey != ''">
+            AND wd.dict_key=#{dictKey}
+        </if>
+        <if test="dictValue != null and dictValue != ''">
+            AND wd.dict_value=#{dictValue}
+        </if>
+        <if test="orderSql != null and orderSql != ''">
+            ORDER BY wd.${orderSql}
+        </if>
+    </select>
+    
+    <select id="queryIds" parameterType="java.lang.String" resultType="java.util.Map">
+    select wd.dict_key,wd.id  from wt_dict as wd where wd.is_delete=0 and wd.dict_value=#{dictValue} and (wd.dict_key='car_container' or wd.dict_key='car_length')
+    </select>
+
+    <select id="queryDictGroup" resultType="com.fssoft.freight.api.result.modules.dict.DictResult">
+       SELECT DISTINCT wd.`group_key` as groupKey, wd.`group_name` as groupName
+        FROM `wt_dict` as wd
+        WHERE wd.`group_name` IS NOT NULL AND  wd.`group_name` != ''
+        
+     </select>
+
+    <select id="queryById" parameterType="int" resultType="com.fssoft.freight.api.result.modules.dict.DictResult">
+  SELECT
+            wd.`id` as id, wd.`module_key` as moduleKey, wd.`group_key` as groupKey, wd.`group_name` as groupName,wd.`dict_key` as dictKey, wd.`dict_value` as dictValue, wd.`is_delete` as isDelete
+        FROM `wt_dict` as wd
+        WHERE 1=1
+            AND wd.is_delete = 0 and wd.id=#{id}
+	</select>
+    <select id="deleteDictListByIdList">
+        update `wt_dict` set is_delete = 1 where id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <update id="updateAboutApp">
+        UPDATE wt_dict SET dict_value = #{param} WHERE dict_key = 'about_app'
+    </update>
+
+
+    <select id="findAboutApp" resultType="java.lang.String">
+        SELECT dict_value FROM wt_dict WHERE dict_key = 'about_app' AND is_delete = 0
+    </select>
+    <!--lidaqing2019年12月05日添加的调度费比例绑定数据-->
+    <select id="finddictkey" parameterType="String" resultType="java.lang.String">
+        SELECT dict_value FROM wt_dict WHERE dict_key = #{dict_key} AND is_delete = 0
+    </select>
+
+
+    <insert id="addDictList">
+        INSERT INTO wt_dict(module_key,group_key,group_name,dict_key,dict_value)
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.moduleKey},#{item.groupKey},#{item.groupName},#{item.dictKey},#{item.dictValue})
+        </foreach>
+    </insert>
+
+    <update id="updateDictListById" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+            UPDATE wt_dict
+            <set>
+                <if test="item.moduleKey!=null and item.moduleKey != ''">
+                    module_key = #{item.moduleKey},
+                </if>
+                <if test="item.groupKey!=null and item.groupKey != ''">
+                    group_key = #{item.groupKey},
+                </if>
+                <if test="item.groupKey!=null and item.groupKey != ''">
+                    group_key = #{item.groupKey},
+                </if>
+                <if test="item.dictKey!=null and item.dictKey != ''">
+                    dict_key = #{item.dictKey},
+                </if>
+                <if test="item.dictValue!=null and item.dictValue != ''">
+                    dict_value = #{item.dictValue},
+                </if>
+            </set>
+            WHERE id=#{item.id}
+        </foreach>
+    </update>
+
+    <select id="queryByIds"  resultType="java.lang.String">
+         SELECT dict_value FROM wt_dict WHERE id IN
+        <foreach collection="array" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+</mapper>

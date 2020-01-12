@@ -4,9 +4,10 @@ import java.util.Objects;
 
 public class Trunck {
 
-
+    private static final long serialVersionUID = 6916880876093508997L;
 
     private String   workid;
+
 
     private String   name ;
     private int    age  ;

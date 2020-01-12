@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.UserDriverReDriverMapper">
+  <resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.UserDriverReDriver">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="driver_id" jdbcType="INTEGER" property="driverId" />
+    <result column="driver_boss_id" jdbcType="INTEGER" property="driverBossId" />
+    <result column="is_publish" jdbcType="TINYINT" property="isPublish" />
+    <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+
+    <select id="queryUserDriverReDriverList" resultType="com.fssoft.freight.api.result.modules.userDriverReDriver.UserDriverReDriverResult">
+        SELECT
+            dudrd.id as id, dudrd.driver_id as driverId, dudrd.driver_boss_id as driverBossId, dudrd.is_publish as isPublish, dudrd.is_delete as isDelete, dudrd.create_time as createTime, dudrd.update_time as updateTime
+        FROM dz_user_driver_re_driver as dudrd
+        WHERE 1=1
+            <if test="updateTimeRangeStart != null and updateTimeRangeStart != ''">
+                AND dudrd.update_time >= #{updateTimeRangeStart}
+            </if>
+            <if test="updateTimeRangeEnd != null and updateTimeRangeEnd != ''">
+                AND #{updateTimeRangeEnd} >= dudrd.update_time
+            </if>
+            AND dudrd.is_delete = 0
+        <if test="orderSql != null and orderSql != ''">
+            ORDER BY dudrd.${orderSql}
+        </if>
+    </select>
+
+    <select id="deleteUserDriverReDriverListByIdList" >
+        update dz_user_driver_re_driver set is_delete = 1 where id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="findIdByDriverIdAndBossId" resultType="java.lang.Integer" parameterType="com.fssoft.freight.dao.persistence.entity.UserDriverReDriver">
+        SELECT id
+        FROM dz_user_driver_re_driver
+        WHERE driver_id = #{driverId}
+        AND driver_boss_id = #{driverBossId}
+        and is_delete = 0
+    </select>
+
+    <select id="findListByBoosId" resultType="java.lang.Integer" >
+        SELECT driver_id
+        FROM dz_user_driver_re_driver
+        WHERE driver_boss_id = #{userId}
+        and is_delete = 0
+    </select>
+
+    <select id="findUserBoosById" resultType="java.lang.Integer" >
+        SELECT driver_boss_id
+        FROM dz_user_driver_re_driver
+        WHERE driver_id = #{userId}
+        and is_delete = 0
+    </select>
+
+</mapper>

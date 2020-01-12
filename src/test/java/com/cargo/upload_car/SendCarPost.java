@@ -1,13 +1,18 @@
-package com.cargo.upload_car.Main;
+package com.cargo.upload_car;
 
 import com.alibaba.fastjson.JSON;
 import com.cargo.upload_car.entity.Car;
 import com.cargo.upload_car.util.MD5Utils;
 import com.cargo.upload_car.util.Send;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+//测试用例
 public class SendCarPost {
+    private static final Logger log = LoggerFactory.getLogger(SendCarPost.class);
+
     public void sendCars(List<Car> car) {
         String JSONString = "";
         int request_id;//	必须参数
@@ -17,16 +22,16 @@ public class SendCarPost {
         request_id = 1;
 
         timestamp = System.currentTimeMillis();
-        System.err.println(timestamp);
+        //System.err.println(timestamp);
 
 
 
 
         try {
             sign = appid + "&" + request_id + "&" + timestamp;
-            System.err.println(sign);
+            //System.err.println(sign);
             sign = MD5Utils.getMD5Str(sign);
-            System.err.println(sign);
+            //System.err.println(sign);
         } catch (Exception e) {
             e.printStackTrace();
         }

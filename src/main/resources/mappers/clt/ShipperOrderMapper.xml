@@ -1,0 +1,417 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.ShipperOrderMapper">
+    <resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.ShipperOrder">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="no" jdbcType="VARCHAR" property="no"/>
+        <result column="freeze_number" jdbcType="VARCHAR" property="freezeNumber"/>
+        <result column="goods_id" jdbcType="INTEGER" property="goodsId"/>
+        <result column="send_user_id" jdbcType="INTEGER" property="userId"/>
+        <result column="rec_user_id" jdbcType="INTEGER" property="goodsUserId"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="overtime" jdbcType="INTEGER" property="overtime"/>
+        <result column="deduct_money" jdbcType="DECIMAL" property="deductMoney"/>
+        <result column="real_money" jdbcType="DECIMAL" property="realMoney"/>
+        <result column="service_money" jdbcType="DECIMAL" property="serviceMoney"/>
+        <result column="manage_money" jdbcType="DECIMAL" property="manageMoney"/>
+        <result column="lose_money" jdbcType="DECIMAL" property="loseMoney"/>
+        <result column="goods_load_province_id" jdbcType="INTEGER" property="goodsLoadProvinceId"/>
+        <result column="goods_load_city_id" jdbcType="INTEGER" property="goodsLoadCityId"/>
+        <result column="goods_load_name" jdbcType="VARCHAR" property="goodsLoadName"/>
+        <result column="goods_unload_name" jdbcType="VARCHAR" property="goodsunLoadName"/>
+        <result column="goods_unload_province_id" jdbcType="INTEGER" property="goodsUnloadProvinceId"/>
+        <result column="goods_unload_city_id" jdbcType="INTEGER" property="goodsUnloadCityId"/>
+        <result column="is_publish" jdbcType="TINYINT" property="isPublish"/>
+        <result column="is_delete" jdbcType="TINYINT" property="isDelete"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+
+
+    <select id="findShipperOrderInfo"
+            resultType="com.fssoft.freight.api.result.api.result.shipperOrder.ApiShipperOrderResult">
+ SELECT
+	o.id,
+	o. NO,
+	o. STATUS,
+	 duz.contacts AS load_address_user_name,
+     duz.phone AS load_address_user_phone,
+      duzz.contacts AS unload_address_user_name,
+     duzz.phone AS unload_address_user_phone,
+	dus1.company_name AS sendCompanyName,
+	dus1.contacts_name AS sendUserName,
+	dus1.contacts_phone AS sendUserPhone,
+	NULL AS sendMemo,
+	dus2.company_name AS recCompanyName,
+	dus2.contacts_name AS recUserName,
+	dus2.contacts_phone AS recUserPhone,
+	NULL AS recMemo,
+	dg.id AS goodsId,
+	wd.dict_value AS goodsType,
+	dg.goods_weight AS goodsWeight,
+	dg.goods_load_time AS goodsLoadTime,
+	o.goods_load_name AS loadArea,
+	o.goods_unload_name AS unLoadArea,
+	dg.lose_weigh AS loseWeigh,
+	dg.goods_price AS goodsPrice,
+	dg.goods_weight_unit AS goodsWeightUnit,
+	dg.goods_limit_day AS goodsLimitDay,
+	dg.goods_overtime_price AS goodsOvertimePrice,
+	dg.contract_code AS contractCode,
+	dg.goods_name AS goodsName,
+	o.overtime,
+	o.real_money AS realMoney,
+	o.lose_money AS loseMoney,
+	dg.is_invoice AS invoiceStatus,
+	dg.offline,
+	o.send_user_id as sendUserId,
+	o.rec_user_id as recUserId
+FROM
+	dz_shipper_order o
+LEFT JOIN dz_goods dg ON o.goods_id = dg.id
+  LEFT JOIN dz_user_address duz on duz.id=dg.load_address_id
+  LEFT JOIN dz_user_address duzz on duzz.id=dg.unload_address_id
+LEFT JOIN dz_user_shipper dus1 ON dus1.user_id = o.send_user_id
+LEFT JOIN dz_user_shipper dus2 ON dus2.user_id = o.rec_user_id
+LEFT JOIN wt_dict AS wd ON dg.goods_type_id = wd.id
+WHERE
+	1 = 1
+AND o.is_publish = 1
+AND o.is_delete = 0
+AND o.id = #{id}
+GROUP BY
+	o.id
+ </select>
+
+
+    <select id="findShipperOrderList"
+            resultType="com.fssoft.freight.api.result.api.result.shipperOrder.ApiShipperOrderListResult">
+        SELECT
+        o.id as shipperOrderId,
+        o.no,
+        o.status,
+        dg.id AS goodsId,
+        wd.dict_value AS goodsType,
+        dus1.contacts_name AS sendUserName,
+        dus1.contacts_phone AS sendUserPhone,
+        dus2.contacts_name AS recUserName,
+        dus2.contacts_phone AS recUserPhone,
+        dg.goods_load_time AS goodsLoadTime,
+        duz.full_address as loadArea ,
+        duz.province as loadProvince,
+        duz.city as loadCity,
+        duzz.full_address as unLoadArea,
+        duzz.province as unloadProvince,
+        duzz.city as unloadCity,
+        dg.goods_price AS goodsPrice,
+        (case WHEN o.status &gt; 0 THEN o.update_time ELSE null END) as goodsUnLoadTime,
+        (case WHEN o.send_user_id=#{userId} THEN 1 ELSE 0 END) as orderType
+        FROM
+        dz_shipper_order o
+        LEFT JOIN dz_goods dg ON o.goods_id = dg.id
+        LEFT JOIN dz_user_address as duz ON dg.load_address_id = duz.id
+        LEFT JOIN dz_user_address as duzz ON dg.unload_address_id = duzz.id
+        LEFT JOIN wt_dict AS wd ON dg.goods_type_id = wd.id
+        LEFT JOIN dz_user_shipper dus1 on o.send_user_id =dus1.user_id
+        LEFT JOIN dz_user_shipper dus2 on o.rec_user_id =dus2.user_id
+        WHERE
+        1 = 1
+        <if test="no != null and no != ''">
+            AND o.no like concat('%', #{no}, '%')
+        </if>
+        <if test="status != null and status != '' || status == 0">
+            <choose>
+                <when test="status == 1">
+                    AND o.status in (1,11)
+                </when>
+                <otherwise>
+                    AND o.status = #{status}
+                </otherwise>
+            </choose>
+
+        </if>
+
+
+        <if test="sendUserPhone != null and sendUserPhone != ''">
+            AND dus1.contacts_phone like concat('%', #{sendUserPhone}, '%')
+        </if>
+        <if test="sendUserName != null and sendUserName != ''">
+            AND dus1.contacts_name like concat('%', #{sendUserName}, '%')
+        </if>
+        <if test="revUserPhone != null and revUserPhone != ''">
+            AND dus2.contacts_phone like concat('%', #{revUserPhone}, '%')
+        </if>
+        <if test="revUserName != null and revUserName != ''">
+            AND dus2.contacts_name like concat('%', #{revUserName}, '%')
+        </if>
+        <if test="beginDate != null and endDate != null">
+            AND o.update_time &gt;= #{beginDate,jdbcType=TIMESTAMP} AND o.update_time &lt;=
+            #{endDate,jdbcType=TIMESTAMP}
+        </if>
+        <if test="orderType == 0">
+            AND o.rec_user_id = #{userId}
+        </if>
+        <if test="orderType == 1">
+            AND o.send_user_id = #{userId}
+        </if>
+        AND o.is_publish = 1 AND o.is_delete = 0 ORDER BY o.create_time desc
+    </select>
+
+    <select id="findAllShipperOrderList"
+            resultType="com.fssoft.freight.api.result.api.result.shipperOrder.ApiShipperOrderListResult">
+        SELECT
+        o.id as shipperOrderId,
+        o.no,
+        o.status,
+        dg.id AS goodsId,
+        wd.dict_value AS goodsType,
+        dus1.contacts_name AS sendUserName,
+        dus1.contacts_phone AS sendUserPhone,
+        dus2.contacts_name AS recUserName,
+        dus2.contacts_phone AS recUserPhone,
+        dg.goods_load_time AS goodsLoadTime,
+        duz.full_address as loadArea ,
+        duz.province as loadProvince,
+        duz.city as loadCity,
+        duzz.full_address as unLoadArea,
+        duzz.province as unloadProvince,
+        duzz.city as unloadCity,
+        dg.goods_price AS goodsPrice,
+        (case WHEN o.status &gt; 0 THEN o.update_time ELSE null END) as goodsUnLoadTime,
+        2 as orderType
+        FROM
+        dz_shipper_order o
+        LEFT JOIN dz_goods dg ON o.goods_id = dg.id
+        LEFT JOIN dz_user_address as duz ON dg.load_address_id = duz.id
+        LEFT JOIN dz_user_address as duzz ON dg.unload_address_id = duzz.id
+        LEFT JOIN wt_dict AS wd ON dg.goods_type_id = wd.id
+        LEFT JOIN dz_user_shipper dus1 on o.send_user_id =dus1.user_id
+        LEFT JOIN dz_user_shipper dus2 on o.rec_user_id =dus2.user_id
+        WHERE
+        1 = 1
+        <if test="no != null and no != ''">
+            AND o.no like concat('%', #{no}, '%')
+        </if>
+        <if test="status != null and status != '' || status == 0">
+            <choose>
+                <when test="status == 1">
+                    AND o.status in (1,11)
+                </when>
+                <otherwise>
+                    AND o.status = #{status}
+                </otherwise>
+            </choose>
+        </if>
+        <if test="sendUserPhone != null and sendUserPhone != ''">
+            AND dus1.contacts_phone like concat('%', #{sendUserPhone}, '%')
+        </if>
+        <if test="sendUserName != null and sendUserName != ''">
+            AND dus1.contacts_name like concat('%', #{sendUserName}, '%')
+        </if>
+        <if test="revUserPhone != null and revUserPhone != ''">
+            AND dus2.contacts_phone like concat('%', #{revUserPhone}, '%')
+        </if>
+        <if test="revUserName != null and revUserName != ''">
+            AND dus2.contacts_name like concat('%', #{revUserName}, '%')
+        </if>
+        <if test="beginDate != null and endDate != null ">
+            AND o.update_time &gt;= #{beginDate,jdbcType=TIMESTAMP} AND o.update_time &lt;=
+            #{endDate,jdbcType=TIMESTAMP}
+        </if>
+        AND o.is_publish = 1 AND o.is_delete = 0 ORDER BY o.create_time desc
+    </select>
+
+
+    <select id="findShipperOrderCount"
+            resultType="com.fssoft.freight.api.result.modules.shipperOrder.ShipperOrderCountResult">
+        SELECT
+        o.id ,
+        o.no ,
+        wd.dict_value as goodsType,
+        (select CONCAT( dua.province,dua.city) from dz_user_address as dua where dua.id=dg.load_address_id and
+        dua.is_delete=0) as goodsLoadPC,
+        (select CONCAT( dua.province,dua.city) from dz_user_address as dua where dua.id=dg.unload_address_id and
+        dua.is_delete=0) as goodsUnloadPC,
+        dg.goods_price as goodsPrice,
+        o.status,
+        (case when dus.shipper_type=2 then dus.contacts_name else dus.company_name end) as goodsCompany,
+        dus.contacts_phone as contactsPhone,
+        dus1.contacts_phone as recPhone,
+        (case when dus1.shipper_type=2 then dus1.contacts_name else dus1.company_name end) as recName,
+        o.goods_load_name AS goodsLoad,
+        o.goods_unload_name AS goodsUnload,
+        o.create_time AS createTime,
+        o.service_money AS platformFee,
+        o.manage_money AS proportionOfDispatchFee,
+        o.real_money AS goodsPriceCar,
+        di.status as isInvoice
+        FROM dz_shipper_order as o
+        LEFT JOIN dz_goods as dg on o.goods_id = dg.id
+        LEFT JOIN wt_dict as wd ON dg.goods_type_id = wd.id
+        LEFT JOIN dz_user_shipper as dus on dus.user_id = o.send_user_id
+        LEFT JOIN dz_user_shipper as dus1 on dus1.user_id = o.rec_user_id
+        LEFT JOIN dz_invoice as di on o.id=di.shipper_order_id and di.is_publish=1 and di.is_delete=0
+        WHERE 1=1
+        <if test="isInvoice != null and isInvoice != ''">
+            <choose>
+                <when test="isInvoice == 0">
+                    AND dg.is_invoice =#{isInvoice}
+                </when>
+                <when test="isInvoice == 1">
+                    AND dg.is_invoice =#{isInvoice} AND di.status=#{isInvoice}
+                </when>
+
+            </choose>
+        </if>
+        <if test="countTimeRangeStart != null and countTimeRangeStart != ''">
+            AND o.update_time &gt;= #{countTimeRangeStart}
+        </if>
+        <if test="countTimeRangeEnd != null and countTimeRangeEnd != ''">
+            AND o.update_time &lt;= #{countTimeRangeEnd}
+        </if>
+        <if test="driverPhone != null and driverPhone != ''">
+            AND dus1.contacts_phone like '%${driverPhone}%'
+        </if>
+        <if test="driverName != null and driverName != ''">
+            AND ((dus1.contacts_name like '%${driverName}%' and dus1.shipper_type=2) or (dus1.company_name like
+            '%${driverName}%' and dus1.shipper_type=1))
+        </if>
+        <if test="contactsPhone != null and contactsPhone != ''">
+            AND dus.contacts_phone like '%${contactsPhone}%'
+        </if>
+        <if test="goodsCompany != null and goodsCompany != ''">
+            AND ((dus.contacts_name like '%${goodsCompany}%' and dus.shipper_type=2) or (dus.company_name like
+            '%${goodsCompany}%' and dus.shipper_type=1))
+        </if>
+        <if test="loadAreaProvice != null and loadAreaProvice != '' and loadAreaProvice != 0">
+            AND o.goods_load_province_id = #{loadAreaProvice}
+        </if>
+        <if test="loadAreaCity != null and loadAreaCity != '' and loadAreaCity != 0">
+            AND o.goods_load_city_id = #{loadAreaCity}
+        </if>
+        <if test="loadArea != null and loadArea != '' and loadArea != 0">
+            AND o.goods_load_id = #{loadArea}
+        </if>
+        <if test="unloadAreaProvice != null and unloadAreaProvice != '' and unloadAreaProvice != 0">
+            AND o.goods_unload_province_id = #{unloadAreaProvice}
+        </if>
+        <if test="unloadAreaCity != null and unloadAreaCity != '' and unloadAreaCity != 0">
+            AND o.goods_unload_city_id = #{unloadAreaCity}
+        </if>
+        <if test="unloadArea != null and unloadArea != '' and unloadArea != 0">
+            AND o.goods_unload_id = #{unloadArea}
+        </if>
+        <if test="status != null and status != '' and status != -1">
+            AND o.status = #{status}
+        </if>
+        <if test="type != null and type != ''">
+            AND dg.goods_type_id = #{type}
+        </if>
+        <if test="userId !=null and userId !=0">
+        <choose>
+            <when test="orderType == 0">
+                AND o.rec_user_id =#{userId}
+            </when>
+            <when test="orderType == 1">
+                AND o.send_user_id =#{userId}
+            </when>
+        </choose>
+        </if>
+        AND o.is_delete = 0
+        <if test="orderSql == null || orderSql == ''">
+            ORDER BY o.create_time DESC
+        </if>
+    </select>
+
+
+    <select id="totalCount" resultType="com.fssoft.freight.api.result.modules.order.OrderTotalCountResult">
+        SELECT
+        count(o.id) as totalCount,
+        sum(cast(o.real_money as DECIMAL(18,2))) as totalFeightMoney,
+        sum(case when dg.goods_weight_unit='吨' then cast(dg.goods_weight as DECIMAL(18,2)) else 0 end ) as totalWeight,
+        sum(case when dg.goods_weight_unit='方' then cast(dg.goods_weight as DECIMAL(18,2)) else 0 end ) as totalVolume,
+        sum(case when dg.is_invoice=1 then cast(o.manage_money as DECIMAL(18,2)) else 0 end ) as
+        totalProportionOfDispatchFee,
+        sum(case when dg.is_invoice=1 then cast((di.money+di.freight_moeny) as DECIMAL(18,2)) else 0 end ) as
+        totalInvoiceMoney
+        FROM dz_shipper_order as o
+        LEFT JOIN dz_goods as dg on o.goods_id = dg.id
+        LEFT JOIN wt_dict as wd ON dg.goods_type_id = wd.id
+        LEFT JOIN dz_user_shipper as dus on dus.user_id = o.send_user_id
+        LEFT JOIN dz_user_shipper as dus1 on dus1.user_id = o.rec_user_id
+        LEFT JOIN dz_invoice as di on o.id=di.shipper_order_id and di.is_publish=1 and di.is_delete=0 and di.status=1
+        WHERE 1=1
+        <if test="isInvoice != null and isInvoice != ''">
+            <choose>
+                <when test="isInvoice == 0">
+                    AND dg.is_invoice =#{isInvoice}
+                </when>
+                <when test="isInvoice == 1">
+                    AND dg.is_invoice =#{isInvoice} AND di.status=#{isInvoice}
+                </when>
+
+            </choose>
+        </if>
+        <if test="countTimeRangeStart != null and countTimeRangeStart != ''">
+            AND o.update_time &gt;= #{countTimeRangeStart}
+        </if>
+        <if test="countTimeRangeEnd != null and countTimeRangeEnd != ''">
+            AND o.update_time &lt;= #{countTimeRangeEnd}
+        </if>
+        <if test="driverPhone != null and driverPhone != ''">
+            AND dus1.contacts_phone like '%${driverPhone}%'
+        </if>
+        <if test="driverName != null and driverName != ''">
+            AND ((dus1.contacts_name like '%${driverName}%' and dus1.shipper_type=2) or (dus1.company_name like
+            '%${driverName}%' and dus1.shipper_type=1))
+        </if>
+        <if test="contactsPhone != null and contactsPhone != ''">
+            AND dus.contacts_phone like '%${contactsPhone}%'
+        </if>
+        <if test="goodsCompany != null and goodsCompany != ''">
+            AND ((dus.contacts_name like '%${goodsCompany}%' and dus.shipper_type=2) or (dus.company_name like
+            '%${goodsCompany}%' and dus.shipper_type=1))
+        </if>
+        <if test="loadAreaProvice != null and loadAreaProvice != '' and loadAreaProvice != 0">
+            AND o.goods_load_province_id = #{loadAreaProvice}
+        </if>
+        <if test="loadAreaCity != null and loadAreaCity != '' and loadAreaCity != 0">
+            AND o.goods_load_city_id = #{loadAreaCity}
+        </if>
+        <if test="loadArea != null and loadArea != '' and loadArea != 0">
+            AND o.goods_load_id = #{loadArea}
+        </if>
+        <if test="unloadAreaProvice != null and unloadAreaProvice != '' and unloadAreaProvice != 0">
+            AND o.goods_unload_province_id = #{unloadAreaProvice}
+        </if>
+        <if test="unloadAreaCity != null and unloadAreaCity != '' and unloadAreaCity != 0">
+            AND o.goods_unload_city_id = #{unloadAreaCity}
+        </if>
+        <if test="unloadArea != null and unloadArea != '' and unloadArea != 0">
+            AND o.goods_unload_id = #{unloadArea}
+        </if>
+        <if test="status != null and status != '' and status != -1">
+            AND o.status = #{status}
+        </if>
+        <if test="type != null and type != ''">
+            AND dg.goods_type_id = #{type}
+        </if>
+        <choose>
+            <when test="orderType == 0">
+                AND o.rec_user_id =#{userId}
+            </when>
+            <when test="orderType == 1">
+                AND o.send_user_id =#{userId}
+            </when>
+        </choose>
+        AND o.is_delete = 0
+        <if test="orderSql == null || orderSql == ''">
+            ORDER BY o.create_time DESC
+        </if>
+    </select>
+
+
+</mapper>

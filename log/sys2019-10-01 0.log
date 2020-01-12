@@ -1,0 +1,18 @@
+2019-12-25 16:46:32,911 INFO (StartupInfoLogger.java:55)- Starting UploadCarApplication on PC-201809171656 with PID 30404 (started by Administrator in E:\工作\T泰安\upload_car)
+2019-12-25 16:46:32,916 INFO (SpringApplication.java:655)- The following profiles are active: test
+2019-12-25 16:46:36,456 INFO (StartupInfoLogger.java:61)- Started UploadCarApplication in 4.102 seconds (JVM running for 5.322)
+2019-12-25 16:46:58,873 INFO (StartupInfoLogger.java:55)- Starting UploadCarApplication on PC-201809171656 with PID 30132 (started by Administrator in E:\工作\T泰安\upload_car)
+2019-12-25 16:46:58,915 INFO (SpringApplication.java:655)- The following profiles are active: test
+2019-12-25 16:47:02,143 INFO (StartupInfoLogger.java:61)- Started UploadCarApplication in 3.976 seconds (JVM running for 4.843)
+2019-12-25 22:34:53,209 INFO (StartupInfoLogger.java:55)- Starting UploadCarApplication on PC-201809171656 with PID 33580 (started by Administrator in E:\工作\T泰安\upload_car)
+2019-12-25 22:34:53,212 INFO (SpringApplication.java:655)- The following profiles are active: test
+2019-12-25 22:34:56,307 INFO (StartupInfoLogger.java:61)- Started UploadCarApplication in 3.65 seconds (JVM running for 4.373)
+2019-12-01 22:36:24,706 INFO (StartupInfoLogger.java:55)- Starting UploadCarApplication on PC-201809171656 with PID 33116 (started by Administrator in E:\工作\T泰安\upload_car)
+2019-12-01 22:36:24,710 INFO (SpringApplication.java:655)- The following profiles are active: test
+2019-12-01 22:36:27,960 INFO (StartupInfoLogger.java:61)- Started UploadCarApplication in 3.985 seconds (JVM running for 5.075)
+2019-12-01 22:42:28,349 INFO (StartupInfoLogger.java:55)- Starting UploadCarApplication on PC-201809171656 with PID 33320 (started by Administrator in E:\工作\T泰安\upload_car)
+2019-12-01 22:42:28,351 INFO (SpringApplication.java:655)- The following profiles are active: test
+2019-12-01 22:42:31,680 INFO (StartupInfoLogger.java:61)- Started UploadCarApplication in 3.884 seconds (JVM running for 4.803)
+2019-10-01 22:46:39,610 INFO (StartupInfoLogger.java:55)- Starting UploadCarApplication on PC-201809171656 with PID 36040 (started by Administrator in E:\工作\T泰安\upload_car)
+2019-10-01 22:46:39,652 INFO (SpringApplication.java:655)- The following profiles are active: test
+2019-10-01 22:46:42,926 INFO (StartupInfoLogger.java:61)- Started UploadCarApplication in 3.896 seconds (JVM running for 5.249)

@@ -1,0 +1,8 @@
+2019-12-10 10:05:17,289 INFO (StartupInfoLogger.java:55)- Starting UploadCarApplication on PC-201809171656 with PID 23688 (started by Administrator in E:\工作\T泰安\upload_car)
+2019-12-10 10:05:17,295 DEBUG (StartupInfoLogger.java:56)- Running with Spring Boot v2.2.0.RELEASE, Spring v5.2.0.RELEASE
+2019-12-10 10:05:17,296 INFO (SpringApplication.java:651)- No active profile set, falling back to default profiles: default
+2019-12-10 10:05:19,625 INFO (StartupInfoLogger.java:61)- Started UploadCarApplication in 2.968 seconds (JVM running for 3.975)
+2010-12-10 13:48:50,751 INFO (StartupInfoLogger.java:55)- Starting UploadCarApplication on PC-201809171656 with PID 28960 (started by Administrator in E:\工作\T泰安\upload_car)
+2010-12-10 13:48:50,757 DEBUG (StartupInfoLogger.java:56)- Running with Spring Boot v2.2.0.RELEASE, Spring v5.2.0.RELEASE
+2010-12-10 13:48:50,757 INFO (SpringApplication.java:651)- No active profile set, falling back to default profiles: default
+2010-12-10 13:48:53,427 INFO (StartupInfoLogger.java:61)- Started UploadCarApplication in 3.904 seconds (JVM running for 4.886)

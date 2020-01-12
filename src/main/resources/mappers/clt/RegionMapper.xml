@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.RegionMapper">
+  <resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.Region">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="region_name" jdbcType="VARCHAR" property="regionName" />
+    <result column="parent_id" jdbcType="INTEGER" property="parentId" />
+    <result column="province_id" jdbcType="INTEGER" property="provinceId" />
+  </resultMap>
+
+    <select id="queryRegionList" resultType="com.fssoft.freight.api.result.modules.region.RegionResult">
+        SELECT
+            dr.id as id, dr.region_name as regionName, dr.parent_id as parentId, dr.province_id as provinceId
+        FROM dz_region as dr
+        WHERE 1=1
+            <if test="regionName != null and regionName != ''">
+                AND dr.region_name like concat('%', #{regionName}, '%')
+            </if>
+            AND dr.is_delete = 0
+        <if test="orderSql != null and orderSql != ''">
+            ORDER BY dr.${orderSql}
+        </if>
+    </select>
+
+    <select id="deleteRegionListByIdList" >
+        update dz_region set is_delete = 1 where id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="findFullNameById"  resultType="java.lang.String">
+        select
+        CONCAT(a1.region_name, a2.region_name, a3.region_name) as name
+        from dz_region as a1
+        left join dz_region as a2 on a1.id = a2.parent_id
+        left join dz_region as a3 on a2.id = a3.parent_id
+        where a3.id = #{id}
+    </select>
+    
+ 	<select id="getRegionList"  resultType="com.fssoft.freight.api.result.modules.region.RegionResult">
+        select
+      		 a1.`id` as id, a1.`moduleCode` as moduleCode, a1.`moduleName` as moduleName
+        from
+         dz_region_code as a1
+         where 1=1
+         <if test="moduleCode != null and moduleCode != ''">
+            AND a1.parentCode=#{moduleCode}
+        </if>
+    </select>
+
+</mapper>

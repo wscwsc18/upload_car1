@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.OrderComplainMapper">
+  <resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.OrderComplain">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="order_id" jdbcType="INTEGER" property="orderId" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+    <result column="status" jdbcType="TINYINT" property="status" />
+    <result column="result" jdbcType="VARCHAR" property="result" />
+    <result column="is_publish" jdbcType="TINYINT" property="isPublish" />
+    <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="photo" jdbcType="LONGVARCHAR" property="photo" />
+  </resultMap>
+
+    <select id="queryOrderComplainList" resultType="com.fssoft.freight.api.result.modules.orderComplain.OrderComplainResult">
+            SELECT
+                a.id,
+                a.user_id AS userId,
+                a.order_id AS orderId,
+                e.phone,
+                  a.photo,
+            (case e.type when 0 then b.company_name when 1 then c.username end)name,
+                e.type,
+                a.content,
+                a.create_time AS createTime,
+                a.update_time AS updateTime,
+                d.no,
+                a.result,
+                a.status,
+                d.status as orderStatus
+            FROM
+                dz_order_complain a
+            LEFT JOIN dz_order d ON a.order_id = d.id
+            LEFT JOIN dz_user e ON a.user_id = e.id
+            LEFT JOIN dz_user_shipper b ON a.user_id = b.user_id
+            LEFT JOIN dz_user_driver c ON a.user_id = c.user_id
+            WHERE
+                  a.user_id = e.id
+            AND a.order_id = d.id
+            <if test="phone != null and phone != ''">
+                AND e.phone like concat('%', #{phone}, '%')
+            </if>
+            <if test="status != null">
+                AND a.status = #{status}
+            </if>
+            <if test="createTimeBegin != null and createTimeBegin != ''">
+                AND a.create_time &gt;= #{createTimeBegin}
+            </if>
+            <if test="createTimeEnd != null and createTimeEnd != ''">
+                AND a.create_time &lt;= #{createTimeEnd}
+            </if>
+            AND a.is_delete = 0 AND a.is_publish = 1
+        <if test="orderSql != null and orderSql != ''">
+            ORDER BY doc.${orderSql}
+        </if>
+    </select>
+
+    <update id="orderResultUpdate" parameterType="com.fssoft.freight.api.io.modules.orderComplain.OrderComplainResultIO">
+        UPDATE dz_order_complain
+        <set>
+            <if test="result != null and result != ''">
+                result = #{result},
+            </if>
+            update_time = now(), status = 1
+        </set> WHERE id = #{id}
+    </update>
+
+    <select id="deleteOrderComplainListByIdList" >
+        update dz_order_complain set is_delete = 1 where id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+</mapper>

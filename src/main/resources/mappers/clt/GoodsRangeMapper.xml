@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.GoodsRangeMapper">
+  <resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.GoodsRange">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="goods_id" jdbcType="INTEGER" property="goodsId" />
+    <result column="group_id" jdbcType="INTEGER" property="groupId" />
+    <result column="goods_rang" jdbcType="VARCHAR" property="goodsRange" />
+    <result column="is_publish" jdbcType="TINYINT" property="isPublish" />
+    <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+
+    <select id="queryGoodsRangeList" resultType="com.fssoft.freight.api.result.modules.goodsRange.GoodsRangeResult">
+        SELECT
+            dgr.id as id, dgr.goods_id as goodsId, dgr.group_id as groupId, dgr.goods_range as goodsRange, dgr.is_publish as isPublish, dgr.is_delete as isDelete, dgr.create_time as createTime,
+        dgr.update_time as updateTime
+        FROM dz_goods_range as dgr
+        WHERE 1=1
+           <if test="updateTimeRangeStart != null and updateTimeRangeStart != ''">
+                AND dgr.update_time &gt;= #{updateTimeRangeStart}
+            </if>
+            <if test="updateTimeRangeEnd != null and updateTimeRangeEnd != ''">
+                AND  dgr.update_time &lt;=  #{updateTimeRangeEnd}
+            </if>
+            AND dgr.is_delete = 0
+        <if test="orderSql != null and orderSql != ''">
+            ORDER BY dgr.${orderSql}
+        </if>
+    </select>
+
+    <select id="deleteGoodsRangeListByIdList" >
+        update dz_goods_range set is_delete = 1 where id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+    
+    <delete id="deleteGoodsRangeByGoodsId">
+        DELETE FROM dz_goods_range WHERE goods_id = #{goodsId}
+    </delete>
+    
+     <select id="queryUserGroupByGoodsId" resultType="com.fssoft.freight.api.result.modules.goodsRange.GoodsRangeResult">
+        SELECT * FROM dz_goods_range WHERE goods_id = #{goodsId} and group_id is not null and group_id != 0
+    </select>
+     <select id="queryUserGroupIdByGoodsId" resultType="java.util.Map">
+        SELECT dgr.group_id,dug.group_name FROM dz_goods_range dgr  left join dz_user_group dug on dgr.group_id=dug.id and dug.is_delete=0  WHERE dgr.goods_id = #{goodsId} and dgr.group_id is not null and group_id != 0
+    </select>
+</mapper>

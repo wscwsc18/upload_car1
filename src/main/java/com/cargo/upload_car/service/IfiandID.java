@@ -8,8 +8,13 @@ import java.util.List;
 
 @Service
 public interface IfiandID {
-    List<Car> setConfig();
-    void sendCars(List<Car> cars);
-    List<CarConfig> findTop200();
-    void deleteCarByCid(Integer id);
+
+
+    public abstract List<Car> setConfig();
+    public abstract int  sendCars(List<Car> cars);
+    public abstract List<CarConfig> findTop200();
+    public abstract List<CarConfig> findTop1();
+
+    public abstract     void deleteCarByCid(Integer id);
+    public abstract void deletByIdless(Integer id);
 }

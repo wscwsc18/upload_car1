@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.UserMapper">
+    <resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.User">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <id column="id" jdbcType="INTEGER" property="id" />
+        <result column="uuid" jdbcType="VARCHAR" property="uuid" />
+        <result column="phone" jdbcType="VARCHAR" property="phone" />
+        <result column="password" jdbcType="VARCHAR" property="password" />
+        <result column="pay_password" jdbcType="VARCHAR" property="payPassword" />
+        <result column="type" jdbcType="TINYINT" property="type" />
+        <result column="status" jdbcType="TINYINT" property="status" />
+        <result column="is_publish" jdbcType="TINYINT" property="isPublish" />
+        <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+
+    <select id="queryUserList" resultType="com.fssoft.freight.api.result.modules.user.UserResult">
+        SELECT
+        du.id as id, du.uuid as uuid, du.phone as phone, du.password as password, du.pay_password as payPassword, du.type as type, du.status as status, du.is_publish as isPublish, du.is_delete as isDelete, du.create_time as createTime, du.update_time as updateTime
+        FROM dz_user as du
+        WHERE 1=1
+        <if test="updateTimeRangeStart != null and updateTimeRangeStart != ''">
+            AND du.update_time >= #{updateTimeRangeStart}
+        </if>
+        <if test="updateTimeRangeEnd != null and updateTimeRangeEnd != ''">
+            AND #{updateTimeRangeEnd} >= du.update_time
+        </if>
+        AND du.is_delete = 0
+        <if test="orderSql != null and orderSql != ''">
+            ORDER BY du.${orderSql}
+        </if>
+    </select>
+
+    <select id="findUserByPhone" resultType="com.fssoft.freight.api.result.modules.user.UserResult">
+        SELECT
+        du.id as id,
+        du.uuid as uuid,
+        du.phone as phone,
+        du.password as password,
+        du.type as type,
+        du.status as status,
+        du.is_publish as isPublish,
+        (CASE WHEN  dud.username is null THEN  dus.company_name ELSE dud.username END) username,
+        (CASE WHEN  du.pay_password is null THEN  1 ELSE 0 END) is_password
+        FROM dz_user as du
+        LEFT JOIN dz_user_driver  dud ON du.id = dud.user_id AND du.type = 1
+        LEFT JOIN dz_user_shipper dus ON du.id = dus.user_id AND du.type = 0
+        WHERE 1=1
+        AND du.is_delete = 0 AND du.phone = #{phone}
+
+    </select>
+    
+      <select id="findUserByPhoneAndType" resultType="com.fssoft.freight.api.result.modules.user.UserResult">
+        SELECT
+        du.id as id,
+        du.uuid as uuid,
+        du.phone as phone,
+        du.password as password,
+        du.type as type,
+        du.status as status,
+        du.is_publish as isPublish,
+        (CASE WHEN  dud.username is null THEN  dus.company_name ELSE dud.username END) username,
+        (CASE WHEN  du.pay_password is null THEN  1 ELSE 0 END) is_password
+        FROM dz_user as du
+        LEFT JOIN dz_user_driver  dud ON du.id = dud.user_id AND du.type = 1
+        LEFT JOIN dz_user_shipper dus ON du.id = dus.user_id AND du.type = 0
+        WHERE 1=1
+        AND du.is_delete = 0 AND du.phone = #{phone} And du.type=#{type}
+
+    </select>
+
+    <select id="deleteUserListByIdList" >
+        update dz_user set is_delete = 1 where id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="commentsUserInfo" resultType="com.fssoft.freight.api.result.api.result.review.ApiReviewResult">
+        SELECT COUNT(0), SUM(dur.`level`) FROM dz_user_review dur WHERE dur.type = 0 AND dur.review_user_id = 2
+    </select>
+
+    <select id="findUserCount" resultType="java.lang.Integer">
+         SELECT COUNT(du.id) FROM dz_user du WHERE  du.is_delete = 0 
+         UNION ALL
+         SELECT COUNT(du.id) FROM dz_user du WHERE du.type = 0 AND du.is_delete = 0 and du.status=1
+         UNION ALL
+         SELECT COUNT(du.id) FROM dz_user du LEFT JOIN dz_user_driver dud on du.id = dud.user_id
+          WHERE du.type = 1 AND du.is_delete = 0 AND dud.type = 1 and du.status=1
+         UNION ALL
+         SELECT COUNT(du.id) FROM dz_user du LEFT JOIN dz_user_driver dud on du.id = dud.user_id
+          WHERE du.type = 1 AND du.is_delete = 0 AND dud.type = 0 and du.status=1
+    </select>
+    
+    <select id="findIdsByType" resultType="java.lang.Integer">
+    select du.id from dz_user du where du.is_delete=0 and du.is_publish=1 and du.`status`=1
+         <if test="type ==2">
+            AND du.type = 0
+        </if>
+         <if test="type ==3">
+            AND du.type = 1
+        </if>
+    </select>
+
+
+    <select id="findUserByDay" resultType="com.fssoft.freight.api.result.modules.index.DayUserInfo">
+        SELECT du.id,du.phone, du.type, dud.type as role, du.`status` FROM dz_user du
+        LEFT JOIN dz_user_driver  dud ON du.id = dud.user_id AND du.type = 1
+        LEFT JOIN dz_user_shipper dus ON du.id = dus.user_id AND du.type = 0
+        WHERE 1 = 1 AND du.is_delete = 0 AND  du.is_publish = 1
+        AND  date(du.create_time) = curdate() ORDER BY du.create_time DESC
+    </select>
+
+    <select id="findUserInfo">
+        select dud.level,du.phone,du.status,dua.contacts from dz_user_address dua RIGHT JOIN
+        dz_user du on dua.user_id = du.id LEFT JOIN dz_user_driver dud on du.id = dud.user_id
+    </select>
+
+    <select id="findExamineList" resultType="com.fssoft.freight.api.result.modules.user.UserDriverResult">
+        SELECT du.id, dud.type, du.`status`, du.create_time as createTime, du.phone, dud.username
+        FROM dz_user du
+        LEFT JOIN dz_user_driver dud ON du.id = dud.user_id
+        WHERE du.type = 1
+        <if test="createTimeRangeStart != null and createTimeRangeStart != ''">
+            AND du.create_time >= #{createTimeRangeStart}
+        </if>
+        <if test="createTimeRangeEnd != null and createTimeRangeEnd != ''">
+            AND #{createTimeRangeEnd} >= du.create_time
+        </if>
+        <if test="phone != null and phone != ''">
+            AND du.phone like concat('%', #{phone}, '%')
+        </if>
+        <if test="status != null and status != '' || status == 0">
+            AND du.status = #{status}
+        </if>
+        AND du.is_delete = 0 AND du.status != 3
+        ORDER BY du.status DESC, du.create_time desc
+    </select>
+
+
+
+    <select id="finUserReview" resultType="com.fssoft.freight.api.result.modules.userReview.UserReviewResult">
+        SELECT * FROM dz_user_review dur WHERE dur.type = 0 AND dur.review_user_id = #{userId}
+    </select>
+
+
+
+
+
+
+    <select id="findUserInfoByIds" resultType="com.fssoft.freight.api.result.api.result.account.UserInfoResult">
+    SELECT
+	a.id,
+	a.uuid,
+	a.phone,
+	a. PASSWORD,
+	a.pay_password AS payPassword,
+	a.type,
+	a. STATUS,
+	a.is_publish AS isPublish,
+	a.update_time AS updateTime,
+	b.id AS "driverListResult.id",
+	d.content AS reason,
+	b.user_id AS "driverListResult.userId",
+	b.username AS "driverListResult.username",
+	b.photo AS "driverListResult.photo",
+	b.id_card AS "driverListResult.idCard",
+	b.type AS "driverListResult.type",
+	b.id_card_front AS "driverListResult.idCardFront",
+	b.id_card_back AS "driverListResult.idCardBack",
+	b.driver_licence AS "driverListResult.driverLicence",
+	b.qualification AS "driverListResult.qualification",
+	b.qualification_photo AS "driverListResult.qualificationPhoto",
+	(SELECT
+			ddc1.car_no
+		FROM
+			dz_driver_car ddc1
+		WHERE
+			ddc1. STATUS = 1
+		AND ddc1.car_type = 0
+		AND ddc1.use_status = 1
+		AND ddc1.id IN (
+			SELECT
+				dgu1.user_car_id
+			FROM
+				dz_goods_user dgu1
+			WHERE
+				dgu1.id IN (
+					SELECT
+						doo.goods_user_id
+					FROM
+						(
+							SELECT
+								do1.goods_user_id
+							FROM
+								dz_order do1
+							WHERE
+								do1.user_id = #{userId}
+							AND do1.is_publish = 1
+							AND do1.is_delete = 0
+							AND do1. STATUS &lt; 2
+						) AS doo
+				)
+		) 	LIMIT 1
+	) AS "driverListResult.carNo",
+	b. LEVEL AS "driverListResult.level",
+	b.is_publish AS "driverListResult.isPublish",
+	b.update_time AS "driverListResult.updateTime",
+	c.id AS "userShipperResult.id",
+	c.create_time AS "userShipperResult.createTime",
+	c.contacts_phone AS "userShipperResult.contactsPhone",
+	c.contacts_name AS "userShipperResult.contactsName",
+	c.is_publish AS "userShipperResult.isPublish",
+	c.is_delete AS "userShipperResult.isDelete",
+	c.company_name AS "userShipperResult.companyName",
+	c.user_id AS "userShipperResult.userId",
+	c.photo AS "userShipperResult.photo",
+	c.business_license_card AS "userShipperResult.businessLicenseCard",
+	c.corporation_name AS "userShipperResult.corporationName",
+	c.corporation_id_card AS "userShipperResult.corporationIdCard",
+	c.id_card_front AS "userShipperResult.idCardFront",
+	c.id_card_back AS "userShipperResult.idCardBack",
+	c.business_licence AS "userShipperResult.businessLicence",
+	c.other AS "userShipperResult.other",
+	c.balance AS "userShipperResult.balance",
+	c.freeze_money AS "userShipperResult.freezeMoney",
+	c. LEVEL AS "userShipperResult.level",
+	c.company_info AS "userShipperResult.companyInfo",
+	c.company_bussiness AS "userShipperResult.companyBussiness",
+	c.company_area_id AS "userShipperResult.companyAreaId",
+	c.company_address AS "userShipperResult.companyAddress",
+	c.bank_name AS "userShipperResult.bankName",
+	c.bank_no AS "userShipperResult.bankNo",
+	c.update_time AS "userShipperResult.updateTime",
+	c.shipper_type AS "userShipperResult.shipperType",
+	usm.type AS "userShipperResult.type"
+FROM
+	dz_user a
+LEFT JOIN dz_user_driver b ON a.id = b.user_id
+LEFT JOIN dz_user_shipper c ON a.id = c.user_id
+LEFT JOIN dz_user_examine d ON d.user_id = a.id
+LEFT JOIN dz_user_shipper_member usm ON a.id = usm.member_user_id
+WHERE
+	a.id =#{userId}
+ORDER BY
+	a.id DESC
+LIMIT 1
+    </select>
+
+
+</mapper>

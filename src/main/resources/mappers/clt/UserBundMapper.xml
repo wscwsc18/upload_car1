@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.UserBundMapper">
+  <resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.UserBund">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="bund_user_id" jdbcType="INTEGER" property="bundUserId" />
+    <result column="status" jdbcType="TINYINT" property="status" />
+    <result column="is_publish" jdbcType="TINYINT" property="isPublish" />
+    <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+
+    <select id="queryUserBundList" resultType="com.fssoft.freight.api.result.modules.userBund.UserBundResult">
+        SELECT
+            dub.id as id, dub.user_id as userId, dub.bund_user_id as bundUserId, dub.status as status, dub.is_publish as isPublish, dub.is_delete as isDelete, dub.create_time as createTime, dub.update_time as updateTime
+        FROM dz_user_bund as dub
+        WHERE 1=1
+            <if test="updateTimeRangeStart != null and updateTimeRangeStart != ''">
+                AND dub.update_time >= #{updateTimeRangeStart}
+            </if>
+            <if test="updateTimeRangeEnd != null and updateTimeRangeEnd != ''">
+                AND #{updateTimeRangeEnd} >= dub.update_time
+            </if>
+            AND dub.is_delete = 0
+        <if test="orderSql != null and orderSql != ''">
+            ORDER BY dub.${orderSql}
+        </if>
+    </select>
+
+    <select id="deleteUserBundListByIdList" >
+        update dz_user_bund set is_delete = 1 where id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+    
+    <select id="findUserBundList" resultType="com.fssoft.freight.api.result.api.result.user.ApiUserBundListResult">
+        SELECT
+            du.id AS userId,
+            du.phone,
+            dud.username AS username,
+            dud.photo AS photo
+        FROM
+            dz_user_driver_re_driver AS dudrd
+        <if test="type != null and type == 0">
+            LEFT JOIN dz_user AS du ON du.id = dudrd.driver_boss_id
+            LEFT JOIN dz_user_driver AS dud ON dudrd.driver_boss_id = dud.user_id
+        </if>
+        <if test="type != null and type == 1">
+            LEFT JOIN dz_user AS du ON du.id = dudrd.driver_id
+            LEFT JOIN dz_user_driver AS dud ON dudrd.driver_id = dud.user_id
+        </if>
+        WHERE
+        1=1
+        <if test="phone != null and phone != ''">
+            AND du.phone LIKE concat ('%', #{phone}, '%')
+        </if>
+        <if test="name != null and name != ''">
+            AND dud.username LIKE concat ('%', #{name}, '%')
+        </if>
+        AND (dudrd.driver_id = #{userId} OR dudrd.driver_boss_id = #{userId}) AND dudrd.driver_id != dudrd.driver_boss_id
+        AND du.is_publish = 1 AND du.is_delete = 0 ORDER BY dudrd.update_time DESC
+    </select>
+
+    <select id="findBindingRequestsList" resultType="com.fssoft.freight.api.result.api.result.user.ApiUserBundListResult">
+        SELECT
+            du.id AS userId,
+            du.phone,
+            dud.username AS username,
+            dud.photo AS photo,
+            dub. STATUS
+        FROM
+          dz_user_bund AS dub
+        LEFT JOIN dz_user AS du ON dub.user_id = du.id
+        LEFT JOIN dz_user_driver AS dud ON dub.user_id = dud.user_id
+        WHERE dub.user_id in (SELECT user_id FROM dz_user_bund WHERE bund_user_id = #{userId}) AND dub.is_publish = 1 AND dub.is_delete = 0 AND dub.bund_user_id = #{userId} ORDER BY dub.update_time DESC
+    </select>
+
+    <delete id="updateStatusByUserIdAndBundUserId">
+        DELETE FROM dz_user_bund
+        WHERE user_id = #{userId} AND bund_user_id =#{bundUserId}
+    </delete>
+
+    <update id="updateBundByUserIdAndBundUserId">
+        UPDATE dz_user_bund
+        SET status = 1,update_time = NOW()
+        WHERE user_id = #{bundUserId} AND bund_user_id = #{userId}
+    </update>
+
+    <select id="findUserBundDetail" resultMap="userBundDetail">
+        SELECT
+            du1.id as user_id,
+            du1.phone,
+            (CASE WHEN du.type = 0 THEN dud.username WHEN du.type = 1 THEN dus.contacts_name END)AS username,
+            (CASE WHEN du.type = 0 THEN dud.photo WHEN du.type = 1 THEN dus.photo END)AS photo,
+            dub.status,
+            ddc.car_no
+        FROM
+          dz_user_bund AS dub
+        LEFT JOIN dz_user AS du ON dub.user_id = du.id
+        LEFT JOIN dz_user AS du1 ON dub.bund_user_id = du1.id
+        LEFT JOIN dz_user_driver AS dud ON dub.bund_user_id = dud.user_id
+        LEFT JOIN dz_user_shipper AS dus ON dub.bund_user_id = dus.user_id
+        LEFT JOIN dz_driver_car AS ddc ON dud.user_id = ddc.user_id
+          WHERE
+            dub.user_id = #{userId} AND dub.bund_user_id = #{bundUserId}
+    </select>
+    
+    <resultMap id="userBundDetail" type="com.fssoft.freight.api.result.api.result.user.ApiUserBundListResult">
+        <result property="userId" column="user_id"/>
+        <result property="username" column="username"/>
+        <result property="photo" column="photo"/>
+        <result property="phone" column="phone"/>
+        <result property="status" column="status"/>
+        <collection property="carNo" ofType="java.lang.String">
+            <result column="car_no" property="carNo"/>
+        </collection>
+    </resultMap>
+    
+    <select id="findUserDriverBundCount" resultType="java.lang.Integer">
+        SELECT
+            count(dud.id)
+        FROM
+            dz_user_driver dud,
+            dz_user_driver_re_driver dudrd
+        WHERE
+            CASE
+        WHEN dud.type = 0 THEN
+            dud.user_id = dudrd.driver_id
+        WHEN dud.type = 1 THEN
+            dud.user_id = dudrd.driver_boss_id
+        END
+        AND dud.type = 0
+        AND dud.user_id = #{userId}
+    </select>
+    
+    <select id="findNoBundUserList" resultType="com.fssoft.freight.api.result.api.result.user.ApiNoBundUserListResult">
+        SELECT
+            dud.user_id AS userId,
+            dud.username,
+            du.phone,
+            dud.photo
+        FROM
+            dz_user_driver dud,
+            dz_user du
+        WHERE
+            dud.user_id = du.id
+        AND <![CDATA[ dud.type <> #{type} ]]>
+        <if test="phone != null and phone != ''">
+            AND du.phone like concat('%', #{phone}, '%')
+        </if>
+        AND dud.user_id NOT IN (
+            <if test="type != null and type == 0">
+                SELECT
+                  driver_boss_id
+                FROM
+                  dz_user_driver_re_driver WHERE driver_id = #{userId}
+            </if>
+            <if test="type != null and type == 1">
+                SELECT
+                  driver_id
+                FROM
+                  dz_user_driver_re_driver WHERE driver_boss_id = #{userId}
+            </if>
+        )
+
+        ORDER BY dud.update_time DESC
+    </select>
+
+</mapper>

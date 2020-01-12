@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.CarResourcesMapper">
+  <resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.CarResources">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="car_length" jdbcType="VARCHAR" property="carLengthId" />
+    <result column="car_container" jdbcType="VARCHAR" property="carContainerId" />
+    <result column="unload_name" jdbcType="VARCHAR" property="unloadName" />
+    <result column="load_name" jdbcType="VARCHAR" property="loadName" />
+    <result column="is_busy" jdbcType="INTEGER" property="isBusy" />
+    <result column="description" jdbcType="VARCHAR" property="description" />
+    <result column="unload_name" jdbcType="VARCHAR" property="unloadName" />
+    <result column="load_name" jdbcType="VARCHAR" property="loadName" />
+    <result column="is_publish" jdbcType="TINYINT" property="isPublish" />
+    <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="max_weight" jdbcType="DECIMAL" property="maxWeight" />
+    <result column="unload_code" jdbcType="VARCHAR" property="unloadCode" />
+    <result column="load_code" jdbcType="VARCHAR" property="loadCode" />
+    <result column="car_id" jdbcType="INTEGER" property="carId" />
+  </resultMap>
+
+
+    <select id="findCarResources" resultType="com.fssoft.freight.api.result.modules.carResources.CarResourcesResult">
+    	SELECT
+	dcr.id,
+	dcr.user_id as userId,
+	dud.username as name,
+	du.phone,dcr.car_length as carLength,
+	dcr.car_container as carContainer,
+	dcr.load_name as loadName,
+	dcr.unload_name as unloadName,
+	dcr.max_weight as maxWeight,
+	dcr.description,dcr.unload_code as unloadCode,
+	dcr.load_code as loadCode,
+	ddc.car_no as carNo,dcr.car_id as carId
+	FROM
+		dz_car_resources dcr
+	LEFT JOIN dz_user du on dcr.user_id=du.id and du.status=1 and du.is_delete=0 and du.is_publish=1
+	LEFT JOIN dz_user_driver dud on dcr.user_id=dud.user_id and dud.is_delete=0 and dud.is_publish=1
+	LEFT JOIN dz_driver_car ddc on dcr.car_id=ddc.id
+	where dcr.is_delete=0 and dcr.is_publish=1 and dcr.is_busy=0 and dcr.id=#{id} order by dcr.update_time desc
+    </select>
+    
+     <select id="findByuserId" resultType="com.fssoft.freight.api.result.modules.carResources.CarResourcesResult">
+    	SELECT
+	dcr.id,
+	dcr.user_id as userId,
+	dud.username as name,
+	du.phone,dcr.car_length as carLength,
+	dcr.car_container as carContainer,
+	dcr.load_name as loadName,
+	dcr.unload_name as unloadName,
+	dcr.max_weight as maxWeight,
+	dcr.description,
+	dcr.is_busy as isBusy,dcr.unload_code as unloadCode,
+	dcr.load_code as loadCode,
+	ddc.car_no as carNo,dcr.car_id as carId
+	FROM
+		dz_car_resources dcr
+	LEFT JOIN dz_user du on dcr.user_id=du.id and du.status=1 and du.is_delete=0 and du.is_publish=1
+	LEFT JOIN dz_user_driver dud on dcr.user_id=dud.user_id and dud.is_delete=0 and dud.is_publish=1
+	LEFT JOIN dz_driver_car ddc on dcr.car_id=ddc.id
+	where dcr.is_delete=0 and dcr.is_publish=1 and dcr.user_id=#{id} order by dcr.update_time desc
+    </select>
+    
+    
+    <select id="findCarList" resultType="com.fssoft.freight.api.result.modules.carResources.CarResourcesResult">
+    	SELECT
+	dcr.id,dcr.user_id as userId,dud.username as name,du.phone,dcr.car_length as carLength,dcr.car_container as carContainer,
+	dcr.load_name as loadName,dcr.unload_name as unloadName,
+	dcr.max_weight as maxWeight,dcr.description,dcr.unload_code as unloadCode,
+	dcr.load_code as loadCode,
+	ddc.car_no as carNo,dcr.car_id as carId
+	FROM
+		dz_car_resources dcr
+	LEFT JOIN dz_user du on dcr.user_id=du.id and du.status=1 and du.is_delete=0 and du.is_publish=1
+	LEFT JOIN dz_user_driver dud on dcr.user_id=dud.user_id and dud.is_delete=0 and dud.is_publish=1
+	LEFT JOIN dz_driver_car ddc on dcr.car_id=ddc.id
+	where dcr.is_delete=0 and dcr.is_publish=1 and dcr.is_busy=0 
+	 <if test="loadName != null and loadName != ''">
+            and (dcr.load_name like concat('%', #{loadName}, '%') or dcr.load_name like concat('%', '不限', '%'))
+        </if>
+         <if test="unloadName != null and unloadName != ''">
+            and (dcr.unload_name like concat('%', #{unloadName}, '%') or dcr.unload_name like concat('%', '不限', '%'))
+        </if>
+        <if test="keyword != null and keyword != ''">
+             and (dcr.load_name like concat('%', #{keyword}, '%') or dcr.unload_name like concat('%', #{keyword}, '%') or dcr.car_length like concat('%', #{keyword}, '%')  or dcr.car_container like concat('%', #{keyword}, '%')   or dcr.description like concat('%', #{keyword}, '%') or dcr.max_weight like concat('%', #{keyword}, '%') or dcr.unload_name like concat('%', '不限', '%') or dcr.load_name like concat('%', '不限', '%'))
+        </if>
+	 order by dcr.update_time desc
+    </select>
+    
+    <update id="updateStatus">
+        UPDATE dz_car_resources SET is_busy = #{isBusy} WHERE id = #{id}
+    </update>
+    
+</mapper>

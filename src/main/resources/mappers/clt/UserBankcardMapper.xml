@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.UserBankcardMapper">
+  <resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.UserBankcard">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="card_no" jdbcType="VARCHAR" property="cardNo" />
+    <result column="card_create_bank" jdbcType="VARCHAR" property="cardCreateBank" />
+    <result column="username" jdbcType="VARCHAR" property="username" />
+    <result column="user_id_card" jdbcType="VARCHAR" property="userIdCard" />
+    <result column="user_phone" jdbcType="VARCHAR" property="userPhone" />
+    <result column="orders" jdbcType="INTEGER" property="orders" />
+    <result column="is_publish" jdbcType="TINYINT" property="isPublish" />
+    <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+
+    <select id="queryUserBankcardList" resultType="com.fssoft.freight.api.result.modules.userBankcard.UserBankcardResult">
+        SELECT
+            dub.id as id, dub.user_id as userId, dub.card_no as cardNo, dub.card_create_bank as cardCreateBank, dub.username as username, dub.user_id_card as userIdCard, dub.user_phone as
+        userPhone, dub.orders as order, dub.is_publish as isPublish, dub.is_delete as isDelete, dub.create_time as createTime, dub.update_time as updateTime
+        FROM dz_user_bankcard as dub
+        WHERE 1=1
+            <if test="username != null and username != ''">
+                AND dub.username like concat('%', #{username}, '%')
+            </if>
+            <if test="updateTimeRangeStart != null and updateTimeRangeStart != ''">
+                AND dub.update_time >= #{updateTimeRangeStart}
+            </if>
+            <if test="updateTimeRangeEnd != null and updateTimeRangeEnd != ''">
+                AND #{updateTimeRangeEnd} >= dub.update_time
+            </if>
+            AND dub.is_delete = 0
+        <if test="orderSql != null and orderSql != ''">
+            ORDER BY dub.${orderSql}
+        </if>
+    </select>
+
+    <select id="deleteUserBankcardListByIdList" >
+        update dz_user_bankcard set is_delete = 1 where id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+    
+    <select id="findBankCardList" resultType="com.fssoft.freight.api.result.modules.userBankcard.UserBankcardListResult">
+        SELECT
+            id,
+            card_create_bank AS cardCreateBank,
+            SUBSTRING(card_no, -4) AS cardNo
+        FROM
+            dz_user_bankcard
+        WHERE
+            user_id = #{userId}
+        AND is_delete = 0
+        ORDER BY
+            update_time DESC
+    </select>
+    
+    <insert id="addBankCard" parameterType="com.fssoft.freight.dao.persistence.entity.UserBankcard">
+        INSERT INTO dz_user_bankcard (
+            user_id,card_no,card_create_bank,
+            username,user_id_card,user_phone,orders,
+            is_publish,is_delete,create_time,update_time
+        )
+        VALUES
+            (#{userId},#{cardNo},#{cardCreateBank},#{username},#{userIdCard},#{userPhone},#{orders},#{isPublish},#{isDelete},#{createTime},#{updateTime});
+    </insert>
+    
+    <update id="deleteBankCard">
+        UPDATE dz_user_bankcard SET is_delete = 1,update_time = now() WHERE id = #{id}
+    </update>
+</mapper>

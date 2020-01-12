@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.OrderExceptionHandleMapper">
+  <resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.OrderExceptionHandle">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="order_exception_id" jdbcType="INTEGER" property="orderExceptionId" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+    <result column="is_confirm" jdbcType="TINYINT" property="isConfirm" />
+    <result column="is_publish" jdbcType="TINYINT" property="isPublish" />
+    <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+
+    <select id="queryOrderExceptionHandleList" resultType="com.fssoft.freight.api.result.modules.orderExceptionHandle.OrderExceptionHandleResult">
+        SELECT
+            doeh.id as id, doeh.order_exception_id as orderExceptionId, doeh.content as content, doeh.is_confirm as isConfirm, doeh.is_publish as isPublish, doeh.is_delete as isDelete, doeh.create_time as createTime, doeh.update_time as updateTime
+        FROM dz_order_exception_handle as doeh
+        WHERE 1=1
+            <if test="updateTimeRangeStart != null and updateTimeRangeStart != ''">
+                AND doeh.update_time >= #{updateTimeRangeStart}
+            </if>
+            <if test="updateTimeRangeEnd != null and updateTimeRangeEnd != ''">
+                AND #{updateTimeRangeEnd} >= doeh.update_time
+            </if>
+            AND doeh.is_delete = 0
+        <if test="orderSql != null and orderSql != ''">
+            ORDER BY doeh.${orderSql}
+        </if>
+    </select>
+
+    <select id="findOrderExceptionInfo" resultType="com.fssoft.freight.api.result.api.result.order.ApiOrderExceptionHandResult">
+        SELECT
+        id,
+        content,
+        create_time
+        FROM
+        dz_order_exception_handle
+        WHERE
+        order_exception_id = #{id}
+    </select>
+
+
+
+    <select id="deleteOrderExceptionHandleListByIdList" >
+        update dz_order_exception_handle set is_delete = 1 where id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+</mapper>

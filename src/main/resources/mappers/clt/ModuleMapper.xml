@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.ModuleMapper">
+    <resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.Module">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="module_name" jdbcType="VARCHAR" property="moduleName"/>
+        <result column="module_icon" jdbcType="VARCHAR" property="moduleIcon"/>
+        <result column="module_parent_id" jdbcType="INTEGER" property="moduleParentId"/>
+        <result column="module_level" jdbcType="INTEGER" property="moduleLevel"/>
+        <result column="module_code" jdbcType="VARCHAR" property="moduleCode"/>
+        <result column="module_url" jdbcType="VARCHAR" property="moduleUrl"/>
+        <result column="order_num" jdbcType="INTEGER" property="orderNum"/>
+        <result column="is_publish" jdbcType="TINYINT" property="isPublish"/>
+        <result column="is_delete" jdbcType="TINYINT" property="isDelete"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+    </resultMap>
+
+    <select id="queryModuleList" resultType="com.fssoft.freight.api.result.modules.module.ModuleResult">
+        SELECT
+        wm.`id` as id, wm.`module_name` as moduleName, wm.`module_icon` as moduleIcon, wm.`module_parent_id` as
+        moduleParentId, wm.`module_level` as moduleLevel, wm.`module_code` as moduleCode, wm.`module_url` as moduleUrl,
+        wm.`order_num` as orderNum, wm.`is_publish` as isPublish, wm.`is_delete` as isDelete, wm.`update_time` as
+        updateTime, wm.`create_time` as createTime
+        FROM `wt_module` as wm
+        WHERE 1=1
+        <if test="moduleName != null and moduleName != ''">
+            AND wm.module_name like concat('%', #{moduleName}, '%')
+        </if>
+        <if test="moduleParentId != null and moduleParentId != ''">
+            AND wm.module_parent_id = #{moduleParentId}
+        </if>
+        <if test="moduleCode != null and moduleCode != ''">
+            AND wm.module_code like concat('%', #{moduleCode}, '%')
+        </if>
+        <if test="isPublish != null and isPublish != ''">
+            AND wm.is_publish = #{isPublish}
+        </if>
+        <if test="updateTimeRangeStart != null and updateTimeRangeStart != ''">
+            AND wm.update_time >= #{updateTimeRangeStart}
+        </if>
+        <if test="updateTimeRangeEnd != null and updateTimeRangeEnd != ''">
+            AND #{updateTimeRangeEnd} >= wm.update_time
+        </if>
+        AND wm.is_delete = 0
+        <if test="orderSql != null and orderSql != ''">
+            ORDER BY wm.${orderSql}
+        </if>
+    </select>
+
+    <select id="deleteModuleListByIdList">
+        update `wt_module` set is_delete = 1 where id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <select resultType="java.lang.Integer" id="countChildrenModuleListByIdList" >
+        select IFNULL(count(1), 0) from `wt_module` where is_delete = 0 and is_publish = 1 and module_parent_id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+</mapper>

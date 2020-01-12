@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.UserGasCardMapper">
+ <resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.UserGasCard">
+ 	<id column="id" jdbcType="INTEGER" property="id" />
+ 	<result column="user_id" jdbcType="INTEGER" property="userId"/>
+ 	<result column="descp" jdbcType="VARCHAR" property="descp"/>
+ 	<result column="user_type" jdbcType="INTEGER" property="userType"/>
+ 	<result column="balance" jdbcType="DECIMAL" property="balance"/>
+ 	<result column="last_topup_date" jdbcType="TIMESTAMP" property="lastTopupDate"/>
+ 	<result column="last_consume_date" jdbcType="TIMESTAMP" property="lastConsumeDate"/>
+ 	<result column="qrcheckcode" jdbcType="TIMESTAMP" property="qrcheckcode"/>
+ </resultMap>
+ 
+ <select id="selectByUnique" resultMap="BaseResultMap">
+ 	SELECT id,user_id,descp,user_type,balance,last_topup_date,last_consume_date ,qrcheckcode
+ 	FROM dz_user_gascard
+ 	WHERE user_id=#{userId} AND user_type=#{type}
+ </select>
+ 
+ <update id="inGasCardAmount">
+ 	UPDATE dz_user_gascard
+ 	SET balance=balance+#{amount},last_topup_date=#{lastTopupDate}
+ 	WHERE id=#{id}
+ </update>
+</mapper>

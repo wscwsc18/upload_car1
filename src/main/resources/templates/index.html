@@ -8,17 +8,26 @@
     <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.css">
     <title>数据</title>
 </head>
-
+<style>
+    #count{
+        font-size: 14px;
+        position : absolute ;
+        top: 10px;
+        right: 10px;
+    }
+</style>
 <body>
 <div id="app">
     <div class="panel panel-primary">
         <div class="panel-heading">
             <h3 class="panel-title">车辆数据管理</h3>
+            <span class="panel-title" id="count">后台数据传输次数:{{count}}</span>
         </div>
     </div>
     <div class="panel-body form-inline">
+
         <label>
-            出发地
+            出发地搜索
             <input type="text" v-model="tel" @keyup="getFullname" placeholder="请输入出发地" class="input-prepend">
         </label>
     </div>
@@ -65,7 +74,9 @@
 <script src="node_modules/moment/src/moment.js"></script>
 <script src="node_modules/axios/dist/axios.js"></script>
 <script>
-    var cars = ''
+    var url = 'http://192.168.9.149:18089/';
+
+    var cars = '';
     Vue.prototype.$ajax = axios;
     Vue.filter("renwuFilter", (input) => {
         if (input === 1) {
@@ -82,9 +93,10 @@
         el: "#app",
         data: {
             list: "",
-            testUrl: "http://192.168.9.106/",
+            testUrl: this.url,
             tel: '',
             findList: '',
+            count:0
         },
         created: function () {
             var that = this
@@ -92,7 +104,15 @@
                 .then(function (res) {
                     that.list = res.data
                     cars = res.data;
-                })
+                });
+            window.setInterval(()=>{
+                this.$ajax.get(that.testUrl + "car/updata")
+                    .then(function (res) {
+                        if(res.status ===200) {
+                            that.count += 1
+                        }
+                    })
+            },10000)
         },
         methods: {
             findTopAll: function () {

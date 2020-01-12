@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.AccountMapper">
+  <resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.Account">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="role_id" jdbcType="INTEGER" property="roleId" />
+    <result column="username" jdbcType="VARCHAR" property="username" />
+    <result column="realname" jdbcType="VARCHAR" property="realname" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="mobile" jdbcType="VARCHAR" property="mobile" />
+    <result column="telephone" jdbcType="VARCHAR" property="telephone" />
+    <result column="address" jdbcType="VARCHAR" property="address" />
+    <result column="email" jdbcType="VARCHAR" property="email" />
+    <result column="photo" jdbcType="VARCHAR" property="photo" />
+    <result column="duty" jdbcType="VARCHAR" property="duty" />
+    <result column="organization_id" jdbcType="INTEGER" property="organizationId" />
+    <result column="total_point" jdbcType="INTEGER" property="totalPoint" />
+    <result column="point" jdbcType="INTEGER" property="point" />
+    <result column="expire_time" jdbcType="TIMESTAMP" property="expireTime" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="approval_state" jdbcType="INTEGER" property="approvalState" />
+    <result column="order_num" jdbcType="INTEGER" property="orderNum" />
+    <result column="is_logout" jdbcType="TINYINT" property="isLogout" />
+    <result column="is_publish" jdbcType="TINYINT" property="isPublish" />
+    <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+
+    <select id="queryAccountList" resultType="com.fssoft.freight.api.result.modules.account.AccountResult">
+        SELECT
+            wa.`id` as id, wa.`role_id` as roleId, wa.`username` as username, wa.`realname` as realname, wa.`password` as password, wa.`mobile` as mobile, wa.`telephone` as telephone, wa.`address` as address, wa.`email` as email, wa.`photo` as photo, wa.`duty` as duty, wa.`organization_id` as organizationId, wa.`total_point` as totalPoint, wa.`point` as point, wa.`expire_time` as expireTime, wa.`remark` as remark, wa.`approval_state` as approvalState, wa.`order_num` as orderNum, wa.`is_logout` as isLogout, wa.`is_publish` as isPublish, wa.`is_delete` as isDelete, wa.`update_time` as updateTime, wa.`create_time` as createTime
+        FROM `wt_account` as wa
+        WHERE 1=1
+            <if test="username != null and username != ''">
+                AND wa.username like concat('%', #{username}, '%')
+            </if>
+            <if test="realname != null and realname != ''">
+                AND wa.realname like concat('%', #{realname}, '%')
+            </if>
+            <if test="updateTimeRangeStart != null and updateTimeRangeStart != ''">
+                AND wa.update_time &gt;= #{updateTimeRangeStart}
+            </if>
+            <if test="updateTimeRangeEnd != null and updateTimeRangeEnd != ''">
+                AND  wa.update_time &lt;=  #{updateTimeRangeEnd}
+            </if>
+            AND wa.is_delete = 0
+        <if test="orderSql != null and orderSql != ''">
+            ORDER BY wa.${orderSql}
+        </if>
+    </select>
+	
+	<select id="queryAccountByMobile" resultType="com.fssoft.freight.dao.persistence.entity.Account">
+        SELECT
+            wa.`id` as id, wa.`role_id` as roleId, wa.`username` as username, wa.`realname` as realname, wa.`password` as password, wa.`mobile` as mobile, wa.`telephone` as telephone, wa.`address` as address, wa.`email` as email, wa.`photo` as photo, wa.`duty` as duty, wa.`organization_id` as organizationId, wa.`total_point` as totalPoint, wa.`point` as point, wa.`expire_time` as expireTime, wa.`remark` as remark, wa.`approval_state` as approvalState, wa.`order_num` as orderNum, wa.`is_logout` as isLogout, wa.`is_publish` as isPublish, wa.`is_delete` as isDelete, wa.`update_time` as updateTime, wa.`create_time` as createTime
+        FROM `wt_account` as wa
+        WHERE 1=1 AND wa.`is_delete`=0
+        <if test="mobile != null and mobile != ''">
+                AND wa.mobile=#{mobile}
+        </if>
+    </select>
+	
+	
+    <select id="deleteAccountListByIdList" >
+        update `wt_account` set is_delete = 1 where id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+    
+    <select id="findAccountByRoleTypeAndRoleKey" resultType="com.fssoft.freight.dao.persistence.entity.Account">
+        SELECT
+            wa.`id` as id, wa.`role_id` as roleId, wa.`username` as username, wa.`realname` as realname, wa.`password` as password, wa.`mobile` as mobile, wa.`telephone` as telephone, wa.`address` as address, wa.`email` as email, wa.`photo` as photo, wa.`duty` as duty, wa.`organization_id` as organizationId, wa.`total_point` as totalPoint, wa.`point` as point, wa.`expire_time` as expireTime, wa.`remark` as remark, wa.`approval_state` as approvalState, wa.`order_num` as orderNum, wa.`is_logout` as isLogout, wa.`is_publish` as isPublish, wa.`is_delete` as isDelete, wa.`update_time` as updateTime, wa.`create_time` as createTime
+        	,wa.`role_Type` as roleType,wa.`role_Key` as roleKey 
+        FROM `wt_account` as wa
+        WHERE 1=1 AND wa.`is_delete`=0
+        <if test="roleType != null and roleType != ''">
+                AND wa.role_Type=#{roleType}
+        </if>
+        <if test="roleKey != null and roleKey != ''">
+                AND wa.role_Key=#{roleKey}
+        </if>
+    </select>
+    
+    <select id="findAccountByUsernameAndRoleType" resultType="com.fssoft.freight.dao.persistence.entity.Account">
+        SELECT
+            wa.`id` as id, wa.`role_id` as roleId, wa.`username` as username, wa.`realname` as realname, wa.`password` as password, wa.`mobile` as mobile, wa.`telephone` as telephone, wa.`address` as address, wa.`email` as email, wa.`photo` as photo, wa.`duty` as duty, wa.`organization_id` as organizationId, wa.`total_point` as totalPoint, wa.`point` as point, wa.`expire_time` as expireTime, wa.`remark` as remark, wa.`approval_state` as approvalState, wa.`order_num` as orderNum, wa.`is_logout` as isLogout, wa.`is_publish` as isPublish, wa.`is_delete` as isDelete, wa.`update_time` as updateTime, wa.`create_time` as createTime
+        	,wa.`role_Type` as roleType,wa.`role_Key` as roleKey 
+        FROM `wt_account` as wa
+        WHERE 1=1 AND wa.`is_delete`=0 
+        <if test="roleType != null and roleType != ''">
+                AND wa.role_Type=#{roleType}
+        </if>
+         <if test="username != null and username != ''">
+                AND wa.username=#{username}
+        </if>
+    </select>
+    
+</mapper>

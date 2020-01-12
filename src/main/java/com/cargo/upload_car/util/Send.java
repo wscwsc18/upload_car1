@@ -8,12 +8,6 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
-
-
-
-
-
-
 public class Send {
     // 发送GET请求
     public static String sendGet(String url, Map<String, String> parameters) {

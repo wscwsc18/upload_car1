@@ -1,12 +1,15 @@
 package com.cargo.upload_car.entity;
-
 import java.util.Objects;
-
+/*
+信息目的地表的字段属性属性   潍坊
+*/
 public class Car extends BaseEntity {
 
     private static final long serialVersionUID = 5570055010759909910L;
 
-    private Integer cid;//对应数据库id
+    //private long cid;//对应数据库id  全球唯一
+
+    private String cid;//对应数据库id  全球唯一
 
     private String start_address;    //	起始地详情
     private String end_address;    //	目的地详情
@@ -33,6 +36,7 @@ public class Car extends BaseEntity {
     private String vip_phone;       //是 货主手机号
     private String vip_username;   //是 货主昵称     睿姐，这是新加的两个参数
 
+/*
     public Integer getCid() {
         return cid;
     }
@@ -40,6 +44,7 @@ public class Car extends BaseEntity {
     public void setCid(Integer cid) {
         this.cid = cid;
     }
+*/
 
     public String getStart_address() {
         return start_address;
@@ -236,8 +241,7 @@ public class Car extends BaseEntity {
     @Override
     public String toString() {
         return "Car{" +
-                "cid=" + cid +
-                ", start_address='" + start_address + '\'' +
+                "start_address='" + start_address + '\'' +
                 ", end_address='" + end_address + '\'' +
                 ", remark='" + remark + '\'' +
                 ", start_id='" + start_id + '\'' +
@@ -264,6 +268,14 @@ public class Car extends BaseEntity {
                 '}';
     }
 
+    public String  getCid() {
+        return cid;
+    }
+
+    public void setCid(String  cid) {
+        this.cid = cid;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -276,6 +288,11 @@ public class Car extends BaseEntity {
     public int hashCode() {
         return Objects.hash(cid);
     }
+
+
+
+
+
 }
 
 

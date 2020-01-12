@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.UserGroupMapper">
+  <resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.UserGroup">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="group_name" jdbcType="VARCHAR" property="groupName" />
+    <result column="num" jdbcType="INTEGER" property="num" />
+    <result column="is_publish" jdbcType="TINYINT" property="isPublish" />
+    <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+
+    <select id="queryUserGroupList" resultType="com.fssoft.freight.api.result.modules.userGroup.UserGroupResult">
+        SELECT
+            dug.id as id, dug.user_id as userId, dug.group_name as groupName, dug.num as num, dug.is_publish as isPublish, dug.is_delete as isDelete, dug.create_time as createTime, dug.update_time as updateTime
+        FROM dz_user_group as dug
+        WHERE 1=1
+            <if test="groupName != null and groupName != ''">
+                AND dug.group_name like concat('%', #{groupName}, '%')
+            </if>
+            <if test="updateTimeRangeStart != null and updateTimeRangeStart != ''">
+                AND dug.update_time >= #{updateTimeRangeStart}
+            </if>
+            <if test="updateTimeRangeEnd != null and updateTimeRangeEnd != ''">
+                AND #{updateTimeRangeEnd} >= dug.update_time
+            </if>
+            AND dug.is_delete = 0
+        <if test="orderSql != null and orderSql != ''">
+            ORDER BY dug.${orderSql}
+        </if>
+    </select>
+
+    <select id="deleteUserGroupListByIdList" >
+        update dz_user_group set is_delete = 1 where id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+    
+    <select id="findUserGroupList" parameterType="java.lang.Integer" resultMap="userGroupList">
+        SELECT
+            id,group_name,num
+        FROM dz_user_group
+        WHERE  user_id = #{userId}
+        AND is_delete = 0 AND is_publish = 1 ORDER BY update_time DESC
+    </select>
+
+    <select id="findUserGroupInfo" parameterType="java.lang.Integer" resultMap="userGroupInfo">
+        SELECT
+            dud.user_id,
+            dud.photo,
+            dud.username,
+            dug.group_name,
+            dugm.group_id,
+            du.phone
+        FROM
+            dz_user_group_member dugm,
+            dz_user_group dug,
+            dz_user_driver dud,
+            dz_user du
+        WHERE
+        du.id=dud.user_id 
+        and du.type=1  
+        AND dug.is_publish = 1
+        AND dug.is_delete = 0
+        AND dug.id = dugm.group_id
+        AND dugm.user_id = dud.user_id
+        AND dug.is_publish = 1
+        AND dug.is_delete = 0
+        AND dugm.is_publish = 1
+        AND dugm.is_delete = 0
+        AND dud.is_publish = 1
+        AND dud.is_delete = 0
+        AND dug.id = #{groupId}
+    </select>
+
+    <resultMap id="userGroupInfo" type="com.fssoft.freight.api.result.api.result.userGroup.ApiUserGroupInfoResult">
+
+        <result column="user_id" jdbcType="INTEGER" property="userId" />
+        <result column="group_id" jdbcType="INTEGER" property="groupId" />
+        <result column="photo" jdbcType="VARCHAR" property="photo" />
+        <result column="username" jdbcType="VARCHAR" property="username" />
+        <result column="group_name" jdbcType="VARCHAR" property="groupName" />
+        <result column="phone" jdbcType="VARCHAR" property="phone" />
+    </resultMap>
+    <resultMap id="userGroupList" type="com.fssoft.freight.api.result.api.result.userGroup.ApiUserGroupResult">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <id column="id" jdbcType="INTEGER" property="id" />
+        <result column="user_id" jdbcType="INTEGER" property="userId" />
+        <result column="group_name" jdbcType="VARCHAR" property="groupName" />
+        <result column="num" jdbcType="INTEGER" property="num" />
+        <result column="is_publish" jdbcType="TINYINT" property="isPublish" />
+        <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+
+    <insert id="saveUserGroupMember">
+        INSERT INTO dz_user_group_member (group_id,user_id,is_publish,is_delete,create_time,update_time)
+          VALUES
+          <foreach collection="list" item="userGroupMember" separator=",">
+              (#{userGroupMember.groupId},#{userGroupMember.userId},#{userGroupMember.isPublish},#{userGroupMember.isDelete},#{userGroupMember.createTime},#{userGroupMember.updateTime})
+          </foreach>
+    </insert>
+    
+    <insert id="saveUserGroup"  useGeneratedKeys="true" keyProperty="id" parameterType="com.fssoft.freight.dao.persistence.entity.UserGroup">
+        INSERT INTO dz_user_group (user_id,group_name,num,is_publish,is_delete,create_time,update_time)
+          VALUES (#{userId},#{groupName},#{num},#{isPublish},#{isDelete},#{createTime},#{updateTime})
+    </insert>
+    
+    <update id="deleteUserGroup" parameterType="java.lang.Integer">
+        UPDATE dz_user_group dug,dz_user_group_member dugm SET dug.is_delete = 1,dugm.is_delete = 1 WHERE dug.id=dugm.group_id and dug.id = #{id}
+    </update>
+
+    <delete id="deleteUserGroupMember" parameterType="java.lang.Integer">
+        DELETE FROM dz_user_group_member WHERE group_id = #{groupId}
+    </delete>
+
+    <update id="updateUserGroup" parameterType="com.fssoft.freight.dao.persistence.entity.UserGroup">
+        UPDATE dz_user_group
+        <set>
+            <if test="userId != null and userId != ''">user_id=#{userId},</if>
+            <if test="num != null and num != ''">num=#{num},</if>
+            <if test="groupName != null and groupName != ''">group_name=#{groupName},</if>
+            update_time = now()
+        </set>
+        where id=#{id}
+    </update>
+</mapper>

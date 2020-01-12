@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.InvoiceHistoryMapper">
+  <resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.InvoiceHistory">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="status" jdbcType="TINYINT" property="status" />
+    <result column="freight_money" jdbcType="DECIMAL" property="freightMoney" />
+      <result column="service_money" jdbcType="DECIMAL" property="serviceMoney" />
+    <result column="money" jdbcType="DECIMAL" property="money" />
+    <result column="deliver_name" jdbcType="VARCHAR" property="deliverName" />
+    <result column="deliver_no" jdbcType="VARCHAR" property="deliverNo" />
+    <result column="is_publish" jdbcType="TINYINT" property="isPublish" />
+    <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="address_id" jdbcType="INTEGER" property="addressId" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+  </resultMap>
+
+
+    <select id="queryInvoiceList" resultType="com.fssoft.freight.api.result.modules.invoice.InvoiceResult">
+        SELECT
+        dih.id,
+        dcc.company_name as goodsCompany,
+        (case when dus.company_name is not null then dus.company_name else dus.contacts_name end) as applyName,
+        dus.contacts_phone as contactsPhone,
+        dih.status,
+        dih.freight_money as freightMoney,
+        dih.money as money,
+        dih.deliver_name as deliverCompany,
+        dih.deliver_no as deliverNo,
+        dih.remark as remark,
+        dua.full_address as fullAddress,
+        dih.service_money as serviceMoney,
+        case when di.order_id is not null then 1 when di.shipper_order_id is not null then 2 when di.offline=1 then 3 end as invoiceType
+        FROM dz_invoice_history as dih
+        LEFT JOIN dz_invoice as di on dih.id = di.inovice_his_id
+        left join dz_user_shipper dus on dus.user_id=dih.user_id
+        LEFT JOIN dz_cooperative_company as dcc on dcc.id = dih.dcc_id
+         LEFT JOIN dz_user_address as dua on dua.id = dih.address_id
+        WHERE 1=1
+        <if test="goodsCompany != null and goodsCompany != ''">
+            AND dcc.company_name like concat ('%',#{goodsCompany},'%' )
+        </if>
+         <if test="applyName != null and applyName != ''">
+            AND dcc.company_name like concat ('%',#{goodsCompany},'%' )
+        </if>
+        <if test="status != null and status != '' and status != 0">
+            AND dih.status = #{status}
+        </if>
+        <if test="invoiceType != null and invoiceType != ''">
+           <choose>
+        <when test="invoiceType==1">
+        and di.order_id is not null
+        </when>
+        <when test="invoiceType==2">
+        and di.shipper_order_id is not null
+        </when>
+         <when test="invoiceType==3">
+        and di.offline=1
+        </when>
+        </choose>
+        </if>
+        AND dih.is_delete = 0 group by id
+    </select>
+
+    <select id="queryInvoiceHistoryList" resultType="com.fssoft.freight.api.result.api.result.user.ApiInvoiceHistoryResult">
+        SELECT
+            dih.id as id,
+            dih.status as status,
+            dih.freight_money as deliverMoney,
+            (dih.money + dih.service_money) as money,
+            dih.deliver_name as deliverName,
+            dih.deliver_no as deliverNo,
+            dih.create_time as createTime,
+            dcc.company_name as companyName,
+            dih.remark as remark,
+      	  	dua.full_address as fullAddress,
+            dcc.taxpayer_code as taxpayerCode
+        FROM dz_invoice_history as dih
+        left join dz_cooperative_company  as dcc on dcc.id= dih.dcc_id
+        left join dz_invoice d on d.inovice_his_id =dih.id
+         LEFT JOIN dz_user_address as dua on dua.id = dih.address_id
+        WHERE 1=1
+        AND dih.is_delete = 0 AND  dih.user_id = #{userId} and d.offline=1
+        ORDER BY dih.create_time desc
+
+    </select>
+
+
+</mapper>

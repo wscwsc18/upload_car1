@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.BalanceHistoryMapper">
+  <resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.BalanceHistory">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+      <result column="order_id" jdbcType="INTEGER" property="orderId" />
+    <result column="money" jdbcType="DECIMAL" property="money" />
+    <result column="type" jdbcType="TINYINT" property="type" />
+    <result column="balance" jdbcType="DECIMAL" property="balance" />
+    <result column="bankcard_id" jdbcType="INTEGER" property="bankcardId" />
+      <result column="bankcard_name" jdbcType="VARCHAR" property="bankcardName" />
+      <result column="bankcard_no" jdbcType="VARCHAR" property="bankcardNo" />
+    <result column="desc" jdbcType="VARCHAR" property="desc" />
+    <result column="status" jdbcType="TINYINT" property="status" />
+    <result column="is_publish" jdbcType="TINYINT" property="isPublish" />
+    <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+
+    <select id="queryBalanceHistoryList" resultType="com.fssoft.freight.api.result.modules.balanceHistory.BalanceHistoryResult">
+        SELECT
+            dbh.id as id, dbh.user_id as userId, dbh.money as money, dbh.type as type, dbh.balance as balance, dbh.bankcard_id as bankcardId, dbh.desc as desc, dbh.status as status, dbh.is_publish as isPublish, dbh.is_delete as isDelete, dbh.create_time as createTime, dbh.update_time as updateTime
+        FROM dz_balance_history as dbh
+        WHERE 1=1
+             <if test="updateTimeRangeStart != null and updateTimeRangeStart != ''">
+                AND dbh.update_time &gt;= #{updateTimeRangeStart}
+            </if>
+            <if test="updateTimeRangeEnd != null and updateTimeRangeEnd != ''">
+                AND  dbh.update_time &lt;=  #{updateTimeRangeEnd}
+            </if>
+            AND dbh.is_delete = 0
+        <if test="orderSql != null and orderSql != ''">
+            ORDER BY dbh.${orderSql}
+        </if>
+    </select>
+
+    <select id="findServiceInfo" resultType="com.fssoft.freight.api.result.modules.balanceHistory.ServiceHistoryResult">
+        select COALESCE(SUM(dbh.service_money),0) serviceMoney , COALESCE(SUM(dbh.manage_money),0) manageMoney
+        FROM dz_order dbh WHERE 1 = 1 AND dbh.is_delete = 0
+
+        <if test="createTimeStart != null and createTimeStart != ''">
+            AND dbh.create_time >= #{createTimeStart}
+        </if>
+        <if test="createTimeEnd != null and createTimeEnd != ''">
+            AND #{createTimeEnd} >= dbh.create_time
+        </if>
+        <if test="orderNo != null and orderNo != ''">
+            AND dbh.no like concat('%', #{orderNo}, '%')
+        </if>
+    </select>
+
+    <select id="findSettleList" resultType="java.lang.String">
+        select COALESCE(SUM(money),0) money  FROM dz_balance_history dbh WHERE dbh.type = 1 AND dbh.is_delete = 0
+        UNION ALL
+        select COALESCE(SUM(money),0) money FROM dz_balance_history dbh WHERE dbh.type = 0 AND dbh.is_delete = 0
+        UNION ALL
+        select COALESCE(SUM(money),0) money FROM dz_balance_history dbh  WHERE dbh.type = 3 AND dbh.is_delete = 0
+        UNION ALL
+        select COALESCE(SUM(money),0) money FROM dz_balance_history dbh WHERE dbh.type = 5 AND dbh.is_delete = 0
+        UNION ALL
+        select COALESCE(SUM(money),0) money FROM dz_balance_history dbh WHERE dbh.type = 4 AND dbh.is_delete = 0
+        <if test="createTimeStart != null and createTimeStart != ''">
+            AND dbh.create_time >= #{createTimeStart}
+        </if>
+        <if test="createTimeEnd != null and createTimeEnd != ''">
+            AND #{createTimeEnd} >= dbh.create_time
+        </if>
+        AND dbh.is_delete = 0
+
+    </select>
+
+
+
+
+    <select id="findWalletInfoList" resultType="com.fssoft.freight.api.result.modules.balanceHistory.UserWalletInfoList">
+        SELECT
+        dbh.money as money,
+        dbh.type as type,
+        dbh.bankcard_name as bankName,
+        dbh.bankcard_no as bankCard,
+        dbh.status as status,
+        dbh.desc as content,
+        dbh.create_time as createTime
+        FROM dz_balance_history as dbh
+        WHERE 1=1
+        <if test="id != null and id != ''">
+            AND dbh.user_id = #{id}
+        </if>
+        <if test="bankCard != null and bankCard != ''">
+            AND dbh.bankcard_no = #{bankCard}
+        </if>
+        AND dbh.is_delete = 0 ORDER BY dbh.create_time DESC
+    </select>
+
+    <select id="findSettleInfo" resultType="com.fssoft.freight.api.result.modules.balanceHistory.BalanceHistoryResult">
+        SELECT
+        <choose>
+            <when test="type == 4 || type == 5 ">
+                 dzs.username AS username,
+            </when>
+            <otherwise>
+                 dzs.company_name AS username,
+            </otherwise>
+        </choose>
+
+        dbh.money as money,
+        dz.phone,
+        dbh.type as type,
+        dbh.status as status,
+        dbh.create_time as createTime
+        FROM dz_balance_history as dbh
+        LEFT JOIN dz_user dz ON dbh.user_id = dz.id
+
+
+        <if test="type == 4 || type == 5  ">
+            LEFT JOIN dz_user_driver dzs ON dbh.user_id = dz.id AND dz.type = 1
+        </if>
+
+        <if test="type != 4 and type != 5  ">
+            LEFT JOIN dz_user_shipper dzs ON dbh.user_id = dz.id AND dz.type = 0
+        </if>
+        WHERE 1=1
+
+        <if test="countTimeRangeStart != null and countTimeRangeStart != ''">
+            AND dbh.create_time &gt;= #{countTimeRangeStart}
+        </if>
+        <if test="countTimeRangeEnd != null and countTimeRangeEnd != ''">
+            AND  dbh.create_time &lt;= #{countTimeRangeEnd}
+        </if>
+         
+        AND dbh.is_delete = 0
+        <if test="orderSql != null and orderSql != ''">
+            ORDER BY dbh.${orderSql}
+        </if>
+        <if test="orderSql == null || orderSql == ''">
+            ORDER BY dbh.create_time DESC
+        </if>
+    </select>
+
+    <select id="findWalletList" resultType="com.fssoft.freight.api.result.modules.balanceHistory.UserWalletList">
+        SELECT * FROM (
+            SELECT
+            dzb.id as cardId,
+            dz.id as userId,
+            dz.phone,
+            dzd.username as username,
+            dz.type,
+            dzb.card_create_bank as bankname,
+            dzb.card_no as bankCard ,
+            dzb.username as cardname,
+            dzd.balance as wallet,
+            dz.create_time
+            FROM dz_user dz
+            LEFT JOIN dz_user_driver dzd ON dzd.user_id = dz.id
+            LEFT JOIN dz_user_bankcard dzb ON dzb.user_id = dz.id
+            WHERE dz.type = 1 AND dzd.type = 1 AND dz.is_delete = 0 AND dz.status = 1
+            UNION ALL
+            SELECT
+            dzb.id as cardId,
+            dz.id as userId,
+            dz.phone,
+            dzs.company_name as username,
+            dz.type,
+            dzs.bank_name as bankname,
+            dzs.bank_no as bankCard ,
+            dzb.username as cardname,
+            dzs.balance as wallet,
+            dz.create_time
+            FROM dz_user dz
+            LEFT JOIN dz_user_shipper dzs ON dzs.user_id = dz.id
+            LEFT JOIN dz_user_bankcard dzb ON dzb.user_id = dz.id
+            WHERE dz.type = 0 AND dz.is_delete = 0 AND dz.status = 1
+        )a
+            WHERE 1=1
+        <if test="type != null and type != '' ||type == 0">
+            AND a.type = #{type}
+        </if>
+        <if test="phone != null and phone != ''">
+            AND a.phone like concat('%', #{phone}, '%')
+        </if>
+        <if test="username != null and username != ''">
+            AND a.username like concat('%', #{username}, '%')
+        </if>
+        group by a.userId order by a.create_time desc
+    </select>
+
+    <select id="findTiList" resultType="com.fssoft.freight.api.result.modules.balanceHistory.UserTiList">
+        SELECT
+        dbh.money as money,
+        dz.phone,
+        dbh.type as type,
+        dbh.status as status,
+        dus.company_name as companyName,
+        dud.username as username,
+        dbh.create_time as createTime,
+        dbh.bankcard_name as bankname,
+        dbh.bankcard_no as bankCard,
+        dbh.create_time as createTime
+        FROM dz_balance_history as dbh
+        LEFT JOIN dz_user dz ON dbh.user_id = dz.id
+        LEFT JOIN dz_user_shipper dus ON dus.user_id = dz.id
+        LEFT JOIN dz_user_driver dud ON dud.user_id = dz.id
+        WHERE 1=1
+
+        <if test="status != null and status != '' ||status == 0">
+            AND dbh.status = #{status}
+        </if>
+        <if test="phone != null and phone != ''">
+            AND dz.phone like concat('%', #{phone}, '%')
+        </if>
+
+        <if test="createTimeRangeStart != null and createTimeRangeStart != ''">
+            AND dbh.create_time &gt;= #{createTimeRangeStart}
+        </if>
+        <if test="createTimeRangeEnd != null and createTimeRangeEnd != ''">
+            AND  dbh.create_time &lt;= #{createTimeRangeEnd}
+        </if>
+        
+        
+
+        AND dbh.is_delete = 0 and dbh.type in (3, 4) ORDER BY dbh.create_time DESC
+
+    </select>
+
+
+
+    <select id="deleteBalanceHistoryListByIdList" >
+        update dz_balance_history set is_delete = 1 where id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+    
+    <select id="findBalanceDetail" resultType="com.fssoft.freight.api.result.modules.balanceHistory.BalanceDetailResult">
+        SELECT s.money,
+        s.desc,
+        s.balance,
+        s.create_time as createTime,
+        s.type,
+        ddc.car_no as carNo
+        FROM dz_balance_history s
+        LEFT JOIN dz_order do on do.id = s.order_id
+        LEFT JOIN dz_goods_user dgu on dgu.id = do.goods_user_id
+        LEFT JOIN dz_driver_car ddc on ddc.id = dgu.user_car_id
+        WHERE s.user_id = #{userId} AND s.is_delete = 0 ORDER BY s.create_time DESC
+    </select>
+    
+    <select id="shipperBalance" resultType="com.fssoft.freight.api.result.modules.user.UserBalanceResult">
+        SELECT balance,freeze_money FROM dz_user_shipper WHERE user_id = #{userId}
+    </select>
+
+    <select id="driverBalance" resultType="com.fssoft.freight.api.result.modules.user.UserBalanceResult">
+        SELECT balance FROM dz_user_driver WHERE user_id = #{userId}
+    </select>
+
+    <select id="userIdentity" resultType="java.lang.Integer">
+        SELECT type from dz_user WHERE id=#{userId}
+    </select>
+    
+    <update id="updateDriverBalance">
+        UPDATE dz_user_driver SET balance = #{balance},update_time=NOW() WHERE user_id = #{userId}
+    </update>
+
+    <update id="updateShipperBalance">
+        UPDATE dz_user_shipper SET balance = #{balance},update_time=NOW() WHERE user_id = #{userId}
+    </update>
+
+    <insert id="insertBalanceHistory" parameterType="com.fssoft.freight.dao.persistence.entity.BalanceHistory">
+        INSERT INTO dz_balance_history  ( user_id, order_id, money,type,balance,`desc`,status,is_publish,is_delete,create_time,update_time )
+        VALUES( #{userId},#{orderId},#{money},#{type},#{balance},#{desc},#{status},#{isPublish},#{isDelete},#{createTime},#{updateTime} )
+    </insert>
+</mapper>

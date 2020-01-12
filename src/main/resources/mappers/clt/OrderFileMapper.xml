@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.OrderFileMapper">
+  <resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.OrderFile">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="order_id" jdbcType="INTEGER" property="orderId" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="num" jdbcType="INTEGER" property="num" />
+    <result column="type" jdbcType="TINYINT" property="type" />
+      <result column="category" jdbcType="TINYINT" property="category" />
+    <result column="is_publish" jdbcType="TINYINT" property="isPublish" />
+    <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+
+    <select id="queryOrderFileList" resultType="com.fssoft.freight.api.result.modules.orderFile.OrderFileResult">
+        SELECT
+            dof.id as id, dof.order_id as orderId, dof.user_id as userId, dof.num as num, dof.type as type, dof.is_publish as isPublish, dof.is_delete as isDelete, dof.create_time as createTime, dof.update_time as updateTime
+        FROM dz_order_file as dof
+        WHERE 1=1
+            <if test="updateTimeRangeStart != null and updateTimeRangeStart != ''">
+                AND dof.update_time >= #{updateTimeRangeStart}
+            </if>
+            <if test="updateTimeRangeEnd != null and updateTimeRangeEnd != ''">
+                AND #{updateTimeRangeEnd} >= dof.update_time
+            </if>
+            AND dof.is_delete = 0
+        <if test="orderSql != null and orderSql != ''">
+            ORDER BY dof.${orderSql}
+        </if>
+    </select>
+
+    <select id="findListByOrderId" resultType="com.fssoft.freight.api.result.api.result.order.ApiReceiverFileResult">
+        SELECT dof.id  , dof.num , dof.create_time as createTime, dof.type , dof.category FROM dz_order_file as dof
+        WHERE 1=1 AND dof.is_delete = 0 AND  dof.order_id = #{orderId}
+        <if test="category != null and category != ''">
+            AND  dof.category = #{category}
+        </if>
+
+    </select>
+
+    <select id="findNumByOrderId" resultType="java.lang.Double">
+        SELECT  dof.num  FROM dz_order_file as dof
+        WHERE 1=1 AND dof.is_delete = 0 AND  dof.order_id = #{orderId}  AND  dof.category = 1 ORDER BY dof.type DESC
+    </select>
+
+    <select id="findOrderFile" resultType="com.fssoft.freight.dao.persistence.entity.OrderFile">
+        SELECT * FROM dz_order_file  WHERE order_id = #{orderId}  AND category = #{category} AND type = #{type}
+    </select>
+
+
+    <select id="deleteOrderFileListByIdList" >
+        update dz_order_file set is_delete = 1 where id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+</mapper>

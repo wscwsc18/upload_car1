@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.DriverCarMapper">
+  <resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.DriverCar">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="car_no" jdbcType="VARCHAR" property="carNo" />
+    <result column="car_length_id" jdbcType="INTEGER" property="carLengthId" />
+    <result column="car_container_id" jdbcType="INTEGER" property="carContainerId" />
+    <result column="front_driver_license" jdbcType="VARCHAR" property="frontDriverLicense" />
+    <result column="front_office_license" jdbcType="VARCHAR" property="frontOfficeLicense" />
+    <result column="trailer_driver_license" jdbcType="VARCHAR" property="trailerDriverLicense" />
+    <result column="trailer_office_license" jdbcType="VARCHAR" property="trailerOfficeLicense" />
+    <result column="status" jdbcType="TINYINT" property="status" />
+      <result column="use_status" jdbcType="TINYINT" property="useStatus" />
+    <result column="is_publish" jdbcType="TINYINT" property="isPublish" />
+    <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+    <result column="car_type" jdbcType="TINYINT" property="carType" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="audit_opinion" jdbcType="VARCHAR" property="auditOpinion" />
+    <result column="car_type" jdbcType="TINYINT" property="carType" />
+    <result column="plate_type_id" jdbcType="INTEGER" property="plateTypeId" />
+    <result column="office_license_num" jdbcType="VARCHAR" property="officeLicenseNum" />
+    <result column="owner_name" jdbcType="VARCHAR" property="ownerName" />
+    <result column="isregister" jdbcType="TINYINT" property="isregister" />
+    <result column="register_time" jdbcType="TIMESTAMP" property="registerTime" />
+    <result column="max_weight" jdbcType="DECIMAL" property="maxWeight" />
+    <result column="empty_weight" jdbcType="DECIMAL" property="emptyWeight" />
+    <result column="axle_count" jdbcType="INTEGER" property="axleCount" />
+    <result column="axle_weight" jdbcType="INTEGER" property="axleWeight" />
+    <result column="car_kind" jdbcType="TINYINT" property="carKind" />
+    <result column="car_height_id" jdbcType="INTEGER" property="carHeightId" />
+    <result column="car_width_id" jdbcType="INTEGER" property="carWidthId" />
+  </resultMap>
+
+    <select id="queryDriverCarList" resultType="com.fssoft.freight.api.result.modules.driverCar.DriverCarListResult">
+        SELECT
+            ddc.id,
+            dud.username AS name,
+            du.phone,
+            ddc.car_no AS carNo,
+            ddc.`status`,
+            ddc.update_time AS updateTime,
+            ddc.car_type AS carType
+        FROM
+          dz_driver_car ddc
+        LEFT JOIN dz_user du ON ddc.user_id = du.id
+        LEFT JOIN dz_user_driver dud ON ddc.user_id = dud.user_id
+        WHERE
+          ddc.is_publish = 1
+        AND ddc.is_delete = 0
+        AND du.is_publish = 1
+        AND du.is_delete = 0
+        AND dud.is_publish = 1
+        AND dud.is_delete = 0
+        <if test="phone != null and phone != ''">
+            AND du.phone like concat('%', #{phone}, '%')
+        </if>
+        <if test="status != null and status != '' || status == 0">
+              <if test="status != 0">
+                AND ddc.status = #{status}
+              </if>
+              <if test="status == 0">
+                AND ddc.status = 0
+              </if>
+        </if>
+    		<if test="updateTimeRangeStart != null and updateTimeRangeStart != ''">
+                AND ddc.update_time &gt;= #{updateTimeRangeStart}
+            </if>
+            <if test="updateTimeRangeEnd != null and updateTimeRangeEnd != ''">
+                AND  ddc.update_time &lt;=  #{updateTimeRangeEnd}
+            </if>
+        <if test="orderSql != null and orderSql != ''">
+            ORDER BY ddc.${orderSql}
+        </if>
+        <if test="orderSql == null or orderSql == ''">
+            ORDER BY ddc.status desc, ddc.create_time desc
+        </if>
+    </select>
+    
+    <select id="findDriverCarInfo" resultType="com.fssoft.freight.api.result.modules.driverCar.DriverCarResult">
+        SELECT
+            ddc.id,dud.username AS name,dud.id_card AS idCard,du.phone,dud.type,ddc.car_no AS carNo,
+            ddc.front_driver_license AS frontDriverLicense,ddc.front_office_license AS frontOfficeLicense,
+            ddc.trailer_driver_license AS trailerDriverLicense,ddc.trailer_office_license AS trailerOfficeLicense,
+            ddc.audit_opinion AS auditOpinion,wt.dict_value AS carLength,wt1.dict_value AS carContainer,ddc.car_type AS carType,
+            ddc.office_license_num as officeLicenseNum,ddc.owner_name as ownerName,wt2.dict_value AS plateType,ddc.max_weight as maxWeight,
+            ddc.empty_weight as emptyWeight, ddc.axle_count as axleCount, ddc.axle_weight as axleWeight,wt3.dict_value as carHeight,
+            wt4.dict_value as carWidth,ddc.car_kind as carKind
+        FROM
+          dz_driver_car ddc
+        LEFT JOIN dz_user du ON ddc.user_id = du.id
+        LEFT JOIN dz_user_driver dud ON ddc.user_id = dud.user_id
+        LEFT JOIN wt_dict wt ON wt.id = ddc.car_length_id
+        LEFT JOIN wt_dict wt1 ON wt1.id = ddc.car_container_id
+         LEFT JOIN wt_dict wt2 ON wt2.id = ddc.plate_type_id
+         LEFT JOIN wt_dict wt3 ON wt3.id = ddc.car_height_id
+         LEFT JOIN wt_dict wt4 ON wt4.id = ddc.car_width_id
+        WHERE ddc.id = #{id}
+    </select>
+
+    <select id="findUserCarList" resultType="com.fssoft.freight.api.result.modules.userDriver.UserCarResult">
+      SELECT
+        ddc.id as carId,
+        ddc.car_no as cardNo, wd3.dict_value as carLength,
+        wd2.dict_value as carContainer,
+        ddc.front_driver_license as frontDriverLicense,
+        ddc.status as status,
+        ddc.use_status as useStatus,
+        ddc.front_office_license as frontOfficeLicense,
+        ddc.trailer_driver_license as trailerDriverLicense,
+        ddc.trailer_office_license as trailerOfficeLicense,
+        ddc.car_type as carType,
+        ddc.office_license_num as officeLicenseNum,
+        ddc.owner_name as ownerName,
+        ddc.max_weight as maxWeight,
+        wd2.dict_value AS plateType,
+        ddc.is_publish as isPublish,
+        ddc.empty_weight as emptyWeight, ddc.axle_count as axleCount, ddc.axle_weight as axleWeight,
+        wd5.dict_value as carHeight,
+        wd6.dict_value as carWidth,
+        ddc.car_kind as carKind
+        FROM dz_driver_car as ddc
+        LEFT JOIN wt_dict as wd2 ON ddc.car_container_id = wd2.id
+        LEFT JOIN wt_dict as wd3 ON ddc.car_length_id = wd3.id
+         LEFT JOIN wt_dict as wd4 ON ddc.plate_type_id = wd4.id
+           LEFT JOIN wt_dict as wd5 ON ddc.plate_type_id = wd5.id
+             LEFT JOIN wt_dict as wd6 ON ddc.plate_type_id = wd6.id
+        WHERE 1=1
+        <if test="carNo != null and carNo != ''">
+            AND ddc.car_no like concat('%', #{carNo}, '%')
+        </if>
+        AND ddc.is_delete = 0
+        and ddc.user_id = #{userId}
+    </select>
+    
+    
+     <select id="findDriverCarList" resultType="com.fssoft.freight.api.result.modules.userDriver.UserCarResult">
+      SELECT
+        ddc.id as carId,
+        ddc.car_no as cardNo, wd3.dict_value as carLength,
+        wd2.dict_value as carContainer,
+        ddc.front_driver_license as frontDriverLicense,
+        ddc.status as status,
+        ddc.use_status as useStatus,
+        ddc.front_office_license as frontOfficeLicense,
+        ddc.trailer_driver_license as trailerDriverLicense,
+        ddc.trailer_office_license as trailerOfficeLicense,
+        ddc.car_type as carType,
+        ddc.office_license_num as officeLicenseNum,
+        ddc.owner_name as ownerName,
+        ddc.max_weight as maxWeight,
+        wd2.dict_value AS plateType,
+        ddc.is_publish as isPublish,
+        ddc.empty_weight as emptyWeight, ddc.axle_count as axleCount, ddc.axle_weight as axleWeight,
+        wd5.dict_value as carHeight,
+        wd6.dict_value as carWidth,
+        ddc.car_kind as carKind
+        FROM dz_driver_car as ddc
+        LEFT JOIN wt_dict as wd2 ON ddc.car_container_id = wd2.id
+        LEFT JOIN wt_dict as wd3 ON ddc.car_length_id = wd3.id
+         LEFT JOIN wt_dict as wd4 ON ddc.plate_type_id = wd4.id
+          LEFT JOIN wt_dict as wd5 ON ddc.car_height_id = wd5.id
+           LEFT JOIN wt_dict as wd6 ON ddc.car_width_id = wd6.id
+        WHERE 1=1
+        AND ddc.is_delete = 0 and ddc.status = 1 and ddc.use_status = 0
+        and ddc.id not In (select dcr.car_id from dz_car_resources as dcr where dcr.is_delete=0)
+        and ddc.user_id = #{userId} ORDER BY ddc.create_time DESC
+    </select>
+    
+    <select id="findCarList" resultType="com.fssoft.freight.api.result.api.result.goods.ApiCarListResult">
+      SELECT
+        ddc.car_no as carNo,
+        ddc.id as id
+        FROM dz_driver_car as ddc
+		LEFT JOIN dz_user_driver as duz1 ON duz1.user_id = #{userId}
+        LEFT JOIN dz_user_driver_re_driver as dudrd1 ON duz1.user_id = dudrd1.driver_id
+        LEFT JOIN dz_user_driver as duz2 ON  duz2.user_id = dudrd1.driver_boss_id
+        WHERE 1=1
+        AND ddc.is_delete = 0  and ddc.status = 1 and ddc.use_status = 0  and ddc.user_id = duz2.user_id and ddc.is_publish=1
+        ORDER BY ddc.create_time DESC
+    </select>
+    
+      <select id="findMatchCarList" resultType="com.fssoft.freight.api.result.api.result.goods.ApiCarListResult">
+      SELECT
+        ddc.car_no as carNo,
+        ddc.id as id
+        FROM dz_driver_car as ddc
+		LEFT JOIN dz_user_driver as duz1 ON duz1.user_id = #{userId}
+        LEFT JOIN dz_user_driver_re_driver as dudrd1 ON duz1.user_id = dudrd1.driver_id
+        LEFT JOIN dz_user_driver as duz2 ON  duz2.user_id = dudrd1.driver_boss_id
+        WHERE 1=1
+        AND ddc.is_delete = 0  and ddc.status = 1 and ddc.use_status = 0  and ddc.user_id = duz2.user_id and ddc.is_publish=1
+            <if test="carContainerIds != null and carContainerIds.size>0">
+            AND ddc.car_container_id in 
+              <foreach item="item" index="index" collection="carContainerIds" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        </if>
+          <if test="carLengthIds != null and carLengthIds.size>0">
+            AND ddc.car_length_id in   <foreach item="item" index="index" collection="carLengthIds" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        </if>
+        ORDER BY ddc.create_time DESC
+    </select>
+
+
+    <select id="deleteDriverCar" >
+        update dz_driver_car set is_delete = 1 where id = #{id}
+    </select>
+      <update id="updateDriverPublish">
+        UPDATE dz_driver_car SET is_publish = #{isPublish},update_time = NOW() WHERE id = #{id}
+    </update>
+
+
+    <select id="updateCarStatus" >
+        update dz_driver_car set use_status = 0 where id = #{id}
+    </select>
+
+    <select id="deleteDriverCarListByIdList" >
+        update dz_driver_car set is_delete = 1 where id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="DriverCarResultByUserId" resultType="com.fssoft.freight.api.io.api.driver.UserDriverResult">
+       SELECT
+                ddc.user_id as userId,
+                ddc.username,
+                ddc.id_card as idCard,
+                ddc.type,
+                ddc.id_card_front as idCardFront,
+                ddc.id_card_back as idCardBack,
+                ddc.driver_licence as driverLicence,
+                du.`status`,
+                ddc.qualification_photo as qualificationPhoto,
+                ddc.qualification
+            FROM
+                dz_user_driver ddc
+            LEFT JOIN dz_user du ON ddc.user_id = du.id
+            WHERE ddc.user_id = #{userId} and ddc.is_delete = 0
+    </select>
+</mapper>

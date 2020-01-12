@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.QuestionMapper">
+  <resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.Question">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="answer" jdbcType="VARCHAR" property="answer" />
+    <result column="is_publish" jdbcType="TINYINT" property="isPublish" />
+    <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+
+    <select id="queryQuestionList" resultType="com.fssoft.freight.api.result.modules.question.QuestionResult">
+        SELECT
+            dq.id as id, dq.title as title, dq.answer as answer, dq.is_publish as isPublish, dq.is_delete as isDelete, dq.create_time as createTime, dq.update_time as updateTime
+        FROM dz_question as dq
+        WHERE 1=1
+            <if test="title != null and title != ''">
+                AND dq.title like concat('%', #{title}, '%')
+            </if>
+
+            AND dq.is_delete = 0 AND dq.is_publish = 1
+        <if test="orderSql != null and orderSql != ''">
+            ORDER BY dq.${orderSql}
+        </if>
+    </select>
+
+    <select id="deleteQuestionListByIdList" >
+        update dz_question set is_delete = 1,update_time = now() where id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <insert id="addQuestionList">
+        INSERT INTO dz_question(title,answer,is_publish,is_delete,create_time,update_time)
+          VALUES 
+          <foreach collection="list" item="item" index="index" separator=",">
+              (#{item.title},#{item.answer},1,0,now(),now())
+          </foreach>
+    </insert>
+
+    <update id="updateQuestionListById" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+          UPDATE dz_question
+            <set>
+                <if test="item.title!=null and item.title != ''">
+                    title = #{item.title},
+                </if>
+                <if test="item.answer!=null and item.answer != ''">
+                    answer = #{item.answer},
+                </if>
+                update_time = now()
+            </set>
+            WHERE id=#{item.id}
+        </foreach>
+    </update>
+
+    <insert id="saveAboutApp">
+        INSERT INTO wt_dict(module_key,group_key,dict_key,dict_value,is_delete) VALUES (null,null,'about_app',#{param},0)
+    </insert>
+
+    <update id="deleteAboutApp">
+        update wt_dict set is_delete = 1 where dict_key =#{dictKey}
+    </update>
+
+    <select id="findQuestionList" resultType="com.fssoft.freight.api.result.api.result.account.ApiQuestionResult">
+        SELECT
+
+        dq.title as title,
+        dq.answer as answer
+
+        FROM dz_question as dq
+        WHERE 1=1
+        AND dq.is_delete = 0 AND dq.is_publish = 1
+        ORDER BY dq.create_time desc
+    </select>
+
+</mapper>

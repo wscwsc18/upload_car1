@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.RoleMapper">
+    <resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.Role">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="role_name" jdbcType="VARCHAR" property="roleName"/>
+        <result column="create_account_id" jdbcType="INTEGER" property="createAccountId"/>
+        <result column="is_default" jdbcType="TINYINT" property="isDefault"/>
+        <result column="approval_state" jdbcType="INTEGER" property="approvalState"/>
+        <result column="order_num" jdbcType="INTEGER" property="orderNum"/>
+        <result column="is_publish" jdbcType="TINYINT" property="isPublish"/>
+        <result column="is_delete" jdbcType="TINYINT" property="isDelete"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+    </resultMap>
+
+    <select id="queryRoleList" resultType="com.fssoft.freight.api.result.modules.role.RoleResult">
+        SELECT
+        wr.`id` as id, wr.`role_name` as roleName, wr.`create_account_id` as createAccountId, wr.`is_default` as
+        isDefault, wr.`approval_state` as approvalState, wr.`order_num` as orderNum, wr.`is_publish` as isPublish,
+        wr.`is_delete` as isDelete, wr.`update_time` as updateTime, wr.`create_time` as createTime
+        FROM `wt_role` as wr
+        WHERE 1=1
+        <if test="roleName != null and roleName != ''">
+            AND wr.role_name like concat('%', #{roleName}, '%')
+        </if>
+        <if test="updateTimeRangeStart != null and updateTimeRangeStart != ''">
+            AND wr.update_time >= #{updateTimeRangeStart}
+        </if>
+        <if test="updateTimeRangeEnd != null and updateTimeRangeEnd != ''">
+            AND #{updateTimeRangeEnd} >= wr.update_time
+        </if>
+        AND wr.is_delete = 0
+        <if test="orderSql != null and orderSql != ''">
+            ORDER BY wr.${orderSql}
+        </if>
+    </select>
+
+    <select id="deleteRoleListByIdList">
+        update `wt_role` set is_delete = 1 where id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+</mapper>

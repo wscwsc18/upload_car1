@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.OrganizationMapper">
+  <resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.Organization">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="organization_name" jdbcType="VARCHAR" property="organizationName" />
+    <result column="organization_code" jdbcType="VARCHAR" property="organizationCode" />
+    <result column="organization_parent_id" jdbcType="INTEGER" property="organizationParentId" />
+    <result column="organization_level" jdbcType="INTEGER" property="organizationLevel" />
+    <result column="organization_type" jdbcType="INTEGER" property="organizationType" />
+    <result column="organization_path" jdbcType="VARCHAR" property="organizationPath" />
+    <result column="organization_summary" jdbcType="VARCHAR" property="organizationSummary" />
+    <result column="organization_user" jdbcType="VARCHAR" property="organizationUser" />
+    <result column="organization_user_phone" jdbcType="VARCHAR" property="organizationUserPhone" />
+    <result column="order_num" jdbcType="INTEGER" property="orderNum" />
+    <result column="is_publish" jdbcType="TINYINT" property="isPublish" />
+    <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+
+    <select id="queryOrganizationList" resultType="com.fssoft.freight.api.result.modules.organization.OrganizationResult">
+        SELECT
+            wo.`id` as id, wo.`organization_name` as organizationName, wo.`organization_code` as organizationCode, wo.`organization_parent_id` as organizationParentId, wo.`organization_level` as organizationLevel, wo.`organization_type` as organizationType, wo.`organization_path` as organizationPath, wo.`organization_summary` as organizationSummary, wo.`organization_user` as organizationUser, wo.`organization_user_phone` as organizationUserPhone, wo.`order_num` as orderNum, wo.`is_publish` as isPublish, wo.`is_delete` as isDelete, wo.`update_time` as updateTime, wo.`create_time` as createTime
+        FROM `wt_organization` as wo
+        WHERE 1=1
+            <if test="organizationName != null and organizationName != ''">
+                AND wo.organization_name like concat('%', #{organizationName}, '%')
+            </if>
+            <if test="updateTimeStart != null and updateTimeStart != ''">
+                AND wo.update_time >= #{updateTimeStart}
+            </if>
+            <if test="updateTimeEnd != null and updateTimeEnd != ''">
+                AND #{updateTimeEnd} >= wo.update_time
+            </if>
+            AND wo.is_delete = 0
+        <if test="orderSql != null and orderSql != ''">
+            ORDER BY wo.${orderSql}
+        </if>
+    </select>
+
+    <select id="deleteOrganizationListByIdList" >
+        update `wt_organization` set is_delete = 1 where id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+</mapper>

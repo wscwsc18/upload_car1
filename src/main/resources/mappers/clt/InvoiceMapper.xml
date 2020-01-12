@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fssoft.freight.dao.persistence.dao.InvoiceMapper">
+  <resultMap id="BaseResultMap" type="com.fssoft.freight.dao.persistence.entity.Invoice">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+      <result column="inovice_his_id" jdbcType="INTEGER" property="inoviceHisId" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="order_id" jdbcType="INTEGER" property="orderId" />
+    <result column="goods_load_address" jdbcType="VARCHAR" property="goodsLoadAddress" />
+    <result column="goods_unload_address" jdbcType="VARCHAR" property="goodsUnloadAddress" />
+      <result column="freight_moeny" jdbcType="DECIMAL" property="freightMoeny" />
+      <result column="service_money" jdbcType="DECIMAL" property="serviceMoney" />
+    <result column="money" jdbcType="DECIMAL" property="money" />
+    <result column="status" jdbcType="TINYINT" property="status" />
+    <result column="is_publish" jdbcType="TINYINT" property="isPublish" />
+    <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="shipper_order_id" jdbcType="INTEGER" property="shipperOrderId" />
+    <result column="offline" jdbcType="INTEGER" property="offline" />
+    <result column="description" jdbcType="VARCHAR" property="description" />
+  </resultMap>
+
+
+    <select id="deleteInvoiceListByIdList" >
+        update dz_invoice set is_delete = 1 where id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+
+    <select id="findInvoiceList" resultType="com.fssoft.freight.api.result.api.result.user.ApiUserInvoiceResult">
+        SELECT
+        o.id ,
+        o.goods_load_address as loadAddress ,
+        o.goods_unload_address as unloadAddress,
+        d.id as orderId,
+        d.no orderNo,
+        o.freight_moeny freightMoney,
+        o.money,
+        dod.id as shipperOrderId,
+        dod.no as shipperOrderNo
+        FROM dz_invoice as o
+        LEFT JOIN dz_order as d on d.id = o.order_id
+        LEFT JOIN dz_shipper_order as dod on dod.id = o.shipper_order_id
+        WHERE 1 = 1
+        <choose>
+        <when test="type==0">
+        and o.order_id is not null and d.status in (4,5)
+        </when>
+        <when test="type==1">
+        and o.shipper_order_id is not null and dod.status =2
+        </when>
+        </choose>
+        AND o.is_publish = 1 AND o.is_delete = 0 AND o.status = 0  AND o.user_id = #{userId} 
+        ORDER BY o.create_time desc
+    </select>
+
+    <select id="findInvoiceListInfoByHistoryId" resultType="com.fssoft.freight.api.result.api.result.user.ApiUserInvoiceResult">
+        SELECT
+        o.id ,
+        o.goods_load_address as loadAddress ,
+        o.goods_unload_address as unloadAddress,
+        d.no orderNo,
+        d.id as orderId,
+        dod.id as shipperOrderId,
+        o.freight_moeny freightMoney,
+        o.money,
+        o.service_money serviceMoney,
+        dod.no as shipperOrderNo,
+        o.update_time as updateTime
+        FROM dz_invoice as o
+        LEFT JOIN dz_order as d on d.id = o.order_id
+        LEFT JOIN dz_shipper_order as dod on dod.id = o.shipper_order_id
+        WHERE 
+         o.is_publish = 1 AND o.is_delete = 0 AND o.inovice_his_id=#{id}
+        ORDER BY o.create_time desc
+    </select>
+    
+    
+      <select id="findInvoiceHistoryList" resultType="com.fssoft.freight.api.result.modules.invoiceHistory.InvoiceHistoryResult">
+        SELECT
+	dih.id AS id,
+	dih.user_id AS userId,
+	dih. STATUS,
+	dih.freight_money AS freightMoney,
+	dih.money AS controlMoney,
+	dih.service_money AS serviceMoney,
+	dih.freight_money + dih.money + dih.service_money AS money,
+	dih.deliver_name AS deliverName,
+	dih.deliver_no AS deliverNo,
+	dih.remark as remark,
+    dua.full_address as fullAddress,
+	dih.update_time AS updateTime,
+	(case when di.order_id is not null then 1 WHEN di.shipper_order_id is not null then 2 end) as type,
+	COUNT(dih.id) as count
+	FROM
+	dz_invoice_history dih
+	LEFT JOIN dz_invoice di ON di.inovice_his_id = dih.id
+	AND (
+	di.order_id IS NOT NULL
+	OR di.shipper_order_id IS NOT NULL AND di.offline=0
+	)
+	LEFT JOIN dz_user_address as dua on dua.id = dih.address_id
+	WHERE
+	1 = 1
+	AND dih.is_publish = 1
+	AND dih.is_delete = 0
+	AND dih.user_id = #{userId}
+	AND di.offline=0
+	GROUP BY dih.id
+	ORDER BY
+	dih.update_time DESC
+    </select>
+    
+    
+    
+    
+    
+
+    <select id="findInvoiceInfo" resultType="com.fssoft.freight.api.result.api.result.user.ApiInvoiceInfoResult">
+        SELECT
+        count(o.id) as count,
+        sum(freight_moeny) as deliverMoney,
+        sum(money) as money,
+        sum(service_money) as service
+        FROM dz_invoice as o
+        WHERE 1 = 1
+        <choose>
+            <when test="type == 0">
+                AND o.id in
+                <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </when>
+            <when test="type == 1 ">
+                <if test=" list != null and list.size() > 0 ">
+                    AND o.id  not in
+                    <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
+                </if>
+                <if test=" list == null or list.size() == 0  ">
+                    AND 1 = 1
+                </if>
+            </when>
+
+        </choose>
+
+        AND o.is_publish = 1 AND o.is_delete = 0  AND o.user_id = #{id}
+    </select>
+
+    <update id="updateByOrderId" >
+        UPDATE dz_invoice
+        <set>
+             status = 1, inovice_his_id = #{id}
+        </set>
+        WHERE 1 = 1
+        <choose>
+            <when test="type == 0">
+            <if test="list!=null and list.size() > 0">
+                AND id in
+                <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+                  </if>
+                  <if test="shipperOrderList!=null and shipperOrderList.size() > 0">
+                AND id in
+                <foreach item="item" index="index" collection="shipperOrderList" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+                  </if>
+            </when>
+        </choose>
+        and user_id = #{userId}
+    </update>
+
+    <select id="findHistoryInvoiceInfo" resultType="com.fssoft.freight.api.result.modules.invoice.InvoiceHistoryInfoResult">
+        SELECT
+            dih.freight_money AS freightMoney,
+            dih.service_money AS serviceMoney,
+            dih.money,
+            (case when dus.company_name is not null then dus.company_name else dus.contacts_name end) as company,
+            dus.contacts_phone as contactsPhone,
+            case when di.order_id is not null then 1 when di.shipper_order_id is not null then 2 when di.offline=1 then 3 end as invoiceType,
+            dus.company_address as companyAddress,
+            dus.contacts_name as contactsName,
+        (case when dih.dcc_id is not null and dih.dcc_id != 0 then dcc.address else dus.company_address end) as address,
+		(case when dih.dcc_id is not null and dih.dcc_id != 0 then dcc.phone else dus.contacts_phone   end) as phone,
+		(case when dih.dcc_id is not null and dih.dcc_id != 0 then dcc.bank_name else dus.bank_name  end) as bankName,
+		(case when dih.dcc_id is not null and dih.dcc_id != 0 then dcc.account else dus.bank_no  end) as account,
+		(case when dih.dcc_id is not null and dih.dcc_id != 0 then dcc.company_name else dus.company_name  end) as companyName,
+		(case when dih.dcc_id is not null and dih.dcc_id != 0 then dcc.taxpayer_code else dus.business_license_card end) as taxpayerCode,
+            dih.status,
+            dih.deliver_name as deliverName,
+            dih.deliver_no as deliverNo,
+            dih.remark as remark,
+        	dua.full_address as postFullAddress,
+        	dua.contacts as postContacts,
+        	dua.phone as postContactPhone,
+            dih.update_time as updateTime
+        FROM
+            dz_invoice_history AS dih 
+            left join dz_cooperative_company AS dcc on dih.dcc_id=dcc.id
+            left join dz_user_shipper as dus on dih.user_id=dus.user_id
+            left join dz_invoice as di on di.inovice_his_id=dih.id
+             LEFT JOIN dz_user_address as dua on dua.id = dih.address_id
+        WHERE
+	 dih.id = #{id} GROUP BY dih.id
+    </select>
+    
+    <select id="findInvoiceListInfo" resultType="com.fssoft.freight.api.result.modules.invoice.InvoiceInfoResult">
+        SELECT
+            o. NO AS orderNo,di.freight_moeny AS freightMoney,di.service_money AS serviceMoney,di.money,di.update_time AS updateTime
+        FROM
+            dz_invoice AS di,
+            dz_order AS o
+        WHERE
+            di.order_id = o.id
+        AND inovice_his_id = #{id}
+        ORDER BY
+            di.update_time DESC
+    </select>
+
+</mapper>
